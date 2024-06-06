@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { addTournament } from "~/server/queries";
 
-export async function GET() {
-  return NextResponse.json({ message: "Hello from addTournament" });
-}
-
 export async function POST(request) {
   try {
     const { name } = await request.json();

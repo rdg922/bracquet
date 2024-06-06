@@ -1,7 +1,7 @@
 // pages/index.tsx
 import { getTournaments } from "~/server/queries";
-import AddTournamentForm from "./_components/AddTournament";
-import TournamentCard from "./_components/TournamentCard";
+import AddTournamentForm from "~/components/AddTournament";
+import TournamentCard from "~/components/TournamentCard";
 
 export const dynamic = "force-dynamic";
 

@@ -1,6 +1,3 @@
-// Example model schema from the Drizzle docs
-// https://orm.drizzle.team/docs/sql-schema-declaration
-
 import { sql } from "drizzle-orm";
 import {
   index,
@@ -8,64 +5,206 @@ import {
   serial,
   timestamp,
   varchar,
+  integer,
   primaryKey,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
 export const createTable = pgTableCreator((name) => `bracquet_${name}`);
+export const divisionTypeEnum = pgEnum("division", [
+  "novice",
+  "intermediate",
+  "open",
+]);
 
-export const tournaments = createTable(
-  "tournament",
+export const eventTypeEnum = pgEnum("event_type", [
+  "m_single",
+  "w_single",
+  "m_double",
+  "w_double",
+  "x_double",
+]);
+
+export const bracketTypeEnum = pgEnum("bracket_type", [
+  "single_elim",
+  "double_elim",
+  "single_consol",
+  "round_robin",
+  "custom",
+]);
+
+export const gameStatusEnum = pgEnum("game_status", [
+  "not started",
+  "in progress",
+  "finished",
+]);
+
+export const users = createTable(
+  "users",
   {
-    id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }),
+    userId: serial("user_id").primaryKey(),
+    name: varchar("name", { length: 255 }),
+    email: varchar("email", { length: 255 }),
+    schoolId: integer("school_id"),
   },
-  (tournament) => {
+  (users) => {
     return {
-      nameIndex: index("name_idx").on(tournament.name),
+      userIdIndex: index("users_user_id_idx").on(users.userId),
     };
   },
 );
 
-export interface ITournament {
-  id: number;
-  name: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export const admins = createTable("admin", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 256 }).notNull(),
-  email: varchar("email", { length: 256 }).notNull().unique(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }),
+export const schools = createTable("schools", {
+  schoolId: serial("school_id").primaryKey(),
+  schoolName: varchar("school_name", { length: 255 }).notNull().unique(),
 });
 
-export const tournamentAdmins = createTable(
-  "tournament_admin",
+export const tournaments = createTable(
+  "tournaments",
   {
-    tournamentId: serial("tournament_id")
-      .references(() => tournaments.id)
-      .notNull(),
-    adminId: serial("admin_id")
-      .references(() => admins.id)
-      .notNull(),
+    tournamentId: serial("tournament_id").primaryKey(),
+    name: varchar("name", { length: 256 }).notNull(),
+    startTime: timestamp("start_time", { withTimezone: true }),
+    venue: varchar("venue", { length: 255 }),
+    organizerId: integer("organizer_id").references(() => users.userId),
   },
-  (tournamentAdmin) => {
+  (tournaments) => {
     return {
-      pk: primaryKey(tournamentAdmin.tournamentId, tournamentAdmin.adminId),
+      startTimeIndex: index("tournaments_start_time_idx").on(
+        tournaments.startTime,
+      ),
+    };
+  },
+);
+
+export const events = createTable(
+  "events",
+  {
+    eventId: serial("event_id").primaryKey(),
+    tournamentId: integer("tournament_id").references(
+      () => tournaments.tournamentId,
+    ),
+    name: varchar("name", { length: 256 }).notNull(),
+    type: eventTypeEnum("event_type"),
+    division: divisionTypeEnum("division"),
+    bracketType: bracketTypeEnum("bracket_type"),
+  },
+  (events) => {
+    return {
+      tournamentIdIndex: index("events_tournament_id_idx").on(
+        events.tournamentId,
+      ),
+    };
+  },
+);
+
+export const games = createTable(
+  "games",
+  {
+    gameId: serial("game_id").primaryKey(),
+    eventId: integer("event_id").references(() => events.eventId),
+    bracketPosition: integer("bracket_position"),
+    startTime: timestamp("start_time", { withTimezone: true }),
+    venue: varchar("venue", { length: 255 }),
+    status: gameStatusEnum("status"),
+    score: varchar("score", { length: 1024 }), // Using varchar to store JSON as text
+  },
+  (games) => {
+    return {
+      eventIdIndex: index("games_event_id_idx").on(games.eventId),
+      startTimeIndex: index("games_start_time_idx").on(games.startTime),
+    };
+  },
+);
+
+export const participants = createTable(
+  "participants",
+  {
+    participantId: serial("participant_id").primaryKey(),
+    userId: integer("user_id").references(() => users.userId),
+    gameId: integer("game_id").references(() => games.gameId),
+  },
+  (participants) => {
+    return {
+      userIdIndex: index("participants_user_id_idx").on(participants.userId),
+      gameIdIndex: index("participants_game_id_idx").on(participants.gameId),
+    };
+  },
+);
+
+export const teams = createTable(
+  "teams",
+  {
+    teamId: serial("team_id").primaryKey(),
+    name: varchar("name", { length: 255 }),
+    gameId: integer("game_id").references(() => games.gameId),
+  },
+  (teams) => {
+    return {
+      gameIdIndex: index("teams_game_id_idx").on(teams.gameId),
+    };
+  },
+);
+
+export const teamParticipants = createTable(
+  "team_participants",
+  {
+    teamParticipantId: serial("team_participant_id").primaryKey(),
+    teamId: integer("team_id").references(() => teams.teamId),
+    userId: integer("user_id").references(() => users.userId),
+  },
+  (teamParticipants) => {
+    return {
+      teamIdIndex: index("team_participants_team_id_idx").on(
+        teamParticipants.teamId,
+      ),
+      userIdIndex: index("team_participants_user_id_idx").on(
+        teamParticipants.userId,
+      ),
+    };
+  },
+);
+
+export const partnerRequests = createTable(
+  "partner_requests",
+  {
+    requestId: serial("request_id").primaryKey(),
+    fromUserId: integer("from_user_id").references(() => users.userId),
+    toUserId: integer("to_user_id").references(() => users.userId),
+    eventId: integer("event_id").references(() => events.eventId),
+    message: varchar("message", { length: 255 }),
+  },
+  (partnerRequests) => {
+    return {
+      fromUserIdIndex: index("partner_requests_from_user_id_idx").on(
+        partnerRequests.fromUserId,
+      ),
+      toUserIdIndex: index("partner_requests_to_user_id_idx").on(
+        partnerRequests.toUserId,
+      ),
+    };
+  },
+);
+
+export const partnerSearches = createTable(
+  "partner_searches",
+  {
+    searchId: serial("search_id").primaryKey(),
+    userId: integer("user_id").references(() => users.userId),
+    eventId: integer("event_id").references(() => events.eventId),
+    searchStartTime: timestamp("search_start_time", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    message: varchar("message", { length: 255 }),
+  },
+  (partnerSearches) => {
+    return {
+      userIdIndex: index("partner_searches_user_id_idx").on(
+        partnerSearches.userId,
+      ),
+      eventIdIndex: index("partner_searches_event_id_idx").on(
+        partnerSearches.eventId,
+      ),
     };
   },
 );

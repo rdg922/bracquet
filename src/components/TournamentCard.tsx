@@ -11,7 +11,7 @@ export default function TournamentCard({ tournament }) {
         onClick={() => {
           fetch("/api/deleteTournament", {
             method: "POST",
-            body: JSON.stringify({ id: tournament.id }),
+            body: JSON.stringify({ id: tournament.tournamentId }),
           });
         }}
       >
