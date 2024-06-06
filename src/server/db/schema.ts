@@ -8,6 +8,7 @@ import {
   serial,
   timestamp,
   varchar,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -18,17 +19,53 @@ import {
  */
 export const createTable = pgTableCreator((name) => `bracquet_${name}`);
 
-export const posts = createTable(
-  "post",
+export const tournaments = createTable(
+  "tournament",
   {
     id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
+    name: varchar("name", { length: 256 }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp("updatedAt", { withTimezone: true }),
+    updatedAt: timestamp("updated_at", { withTimezone: true }),
   },
-  (example) => ({
-    nameIndex: index("name_idx").on(example.name),
-  })
+  (tournament) => {
+    return {
+      nameIndex: index("name_idx").on(tournament.name),
+    };
+  },
+);
+
+export interface ITournament {
+  id: number;
+  name: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export const admins = createTable("admin", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 256 }).notNull(),
+  email: varchar("email", { length: 256 }).notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }),
+});
+
+export const tournamentAdmins = createTable(
+  "tournament_admin",
+  {
+    tournamentId: serial("tournament_id")
+      .references(() => tournaments.id)
+      .notNull(),
+    adminId: serial("admin_id")
+      .references(() => admins.id)
+      .notNull(),
+  },
+  (tournamentAdmin) => {
+    return {
+      pk: primaryKey(tournamentAdmin.tournamentId, tournamentAdmin.adminId),
+    };
+  },
 );
