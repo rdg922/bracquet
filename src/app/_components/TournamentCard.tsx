@@ -1,11 +1,13 @@
 "use client";
 
+import { Button } from "~/components/ui/button";
+
 export default function TournamentCard({ tournament }) {
   return (
     <div>
       <div>{tournament.id}</div>
       <h1>{tournament.name}</h1>
-      <button
+      <Button
         onClick={() => {
           fetch("/api/deleteTournament", {
             method: "POST",
@@ -14,7 +16,7 @@ export default function TournamentCard({ tournament }) {
         }}
       >
         Delete
-      </button>
+      </Button>
     </div>
   );
 }
