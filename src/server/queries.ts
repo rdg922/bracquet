@@ -1,5 +1,4 @@
 import { db } from "./db";
-import { auth } from "@clerk/nextjs/server";
 import { tournaments } from "./db/schema";
 import { eq } from "drizzle-orm";
 
@@ -8,7 +7,7 @@ export async function getTournaments() {
   return tournaments;
 }
 
-export async function addTournament(tournament) {
+export async function addTournament(tournament: { name: string }) {
   const newTournament = await db
     .insert(tournaments)
     .values(tournament)

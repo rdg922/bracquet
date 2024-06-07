@@ -1,9 +1,13 @@
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { addTournament } from "~/server/queries";
 
-export async function POST(request) {
+interface TournamentRequestBody {
+  name: string;
+}
+
+export async function POST(request: NextRequest) {
   try {
-    const { name } = await request.json();
+    const { name } = (await request.json()) as TournamentRequestBody;
 
     if (!name) {
       return NextResponse.json(

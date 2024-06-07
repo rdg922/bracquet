@@ -1,23 +1,24 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useRef } from "react";
 
 const AddTournamentForm = () => {
-  const nameRef = useRef(null);
-  const [name, setName] = useState("");
+  const nameRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await fetch("/api/addTournament", {
-      method: "POST",
-      body: JSON.stringify({ name: nameRef.current.value }),
-    });
+    if (nameRef.current) {
+      const response = await fetch("/api/addTournament", {
+        method: "POST",
+        body: JSON.stringify({ name: nameRef.current.value }),
+      });
 
-    if (response.ok) {
-      alert("Tournament added successfully");
-    } else {
-      alert("Failed to add tournament");
+      if (response.ok) {
+        alert("Tournament added successfully");
+      } else {
+        alert("Failed to add tournament");
+      }
     }
   };
 

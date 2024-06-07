@@ -2,15 +2,16 @@
 import { getTournaments } from "~/server/queries";
 import AddTournamentForm from "~/components/AddTournament";
 import TournamentCard from "~/components/TournamentCard";
+import { type ITournament } from "~/server/db/schema";
 
 export const dynamic = "force-dynamic";
 
 async function Tournaments() {
-  const tournaments = await getTournaments();
+  const tournaments = (await getTournaments()) as ITournament[];
   return (
     <div>
       {tournaments.map((tournament) => (
-        <TournamentCard tournament={tournament} />
+        <TournamentCard key={tournament.tournamentId} tournament={tournament} />
       ))}
     </div>
   );

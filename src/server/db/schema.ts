@@ -6,7 +6,6 @@ import {
   timestamp,
   varchar,
   integer,
-  primaryKey,
   pgEnum,
 } from "drizzle-orm/pg-core";
 
@@ -76,6 +75,14 @@ export const tournaments = createTable(
     };
   },
 );
+
+export interface ITournament {
+  tournamentId: number;
+  name: string;
+  startTime?: Date;
+  venue?: string;
+  organizerId?: number;
+}
 
 export const events = createTable(
   "events",
