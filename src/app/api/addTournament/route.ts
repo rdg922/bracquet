@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import { type NextRequest, NextResponse } from "next/server";
 import { addTournament } from "~/server/queries";
 
@@ -7,6 +8,12 @@ interface TournamentRequestBody {
 
 export async function POST(request: NextRequest) {
   try {
+    const user = auth();
+
+    if (!user.userId) {
+      throw new Error("unauth");
+    }
+
     const { name } = (await request.json()) as TournamentRequestBody;
 
     if (!name) {

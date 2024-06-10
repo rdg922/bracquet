@@ -42,6 +42,7 @@ export const users = createTable(
   "users",
   {
     userId: serial("user_id").primaryKey(),
+    authId: varchar("auth_id", { length: 255 }).notNull().unique(),
     name: varchar("name", { length: 255 }),
     email: varchar("email", { length: 255 }),
     schoolId: integer("school_id"),
@@ -52,6 +53,14 @@ export const users = createTable(
     };
   },
 );
+
+export interface IUser {
+  userId?: number; // Serial type for user_id
+  authId: string; // Auth ID, must be unique
+  name?: string; // Name, optional
+  email?: string; // Email, optional
+  schoolId?: number; // School ID, optional
+}
 
 export const schools = createTable("schools", {
   schoolId: serial("school_id").primaryKey(),
