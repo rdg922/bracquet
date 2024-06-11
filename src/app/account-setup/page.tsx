@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
@@ -8,9 +8,9 @@ interface IsUserSetup {
   message: boolean;
 }
 
-const AccountSetup = () => {
+const AccountSetup: React.FC = () => {
   const { userId: authId } = useAuth();
-  const [name, setName] = useState("");
+  const nameRef = useRef<HTMLInputElement>(null);
   const { user } = useUser();
   const email = user?.emailAddresses[0]?.emailAddress; // TODO: avoid sending address from front end
   const router = useRouter();
@@ -46,6 +46,7 @@ const AccountSetup = () => {
     e.preventDefault();
 
     try {
+      const name = nameRef.current?.value || "";
       const response = await fetch("/api/setupUser", {
         method: "POST",
         headers: {
@@ -78,13 +79,8 @@ const AccountSetup = () => {
       <h1>Account Setup</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+          <label htmlFor="name">Name</label>
+          <input id="name" type="text" ref={nameRef} required />
         </div>
         <button type="submit">Submit</button>
       </form>
