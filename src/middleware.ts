@@ -7,11 +7,12 @@ interface IsUserSetupResponse {
   message: boolean;
 }
 
-async function checkUserSetup(userId: string) {
+async function checkUserSetup(userId: string, requestUrl: string) {
   try {
-    const response = await fetch(
-      `http://localhost:3000/api/isUserSetup?userId=${userId}`,
-    );
+    const url = new URL("/api/isUserSetup", requestUrl);
+    url.searchParams.append("userId", userId);
+
+    const response = await fetch(url.toString());
     if (response.ok) {
       const data = (await response.json()) as IsUserSetupResponse;
       return data.message;
@@ -29,7 +30,7 @@ export default clerkMiddleware(async (auth, request) => {
   if (isProtectedRoute(request)) {
     auth().protect();
     if (userId) {
-      const userSetup = await checkUserSetup(userId);
+      const userSetup = await checkUserSetup(userId, request.url);
       if (!userSetup) {
         return NextResponse.redirect(new URL("/account-setup", request.url));
       }
