@@ -1,11 +1,26 @@
+import { auth } from "@clerk/nextjs/server";
 import { db } from "./db";
 import { tournaments, users } from "./db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { type IUser } from "~/server/db/schema";
 
 export async function getTournaments() {
   const tournaments = await db.query.tournaments.findMany();
   return tournaments;
+}
+
+export async function getMyTournaments() {
+  const user = auth();
+  const userId = user.userId;
+
+  if (!userId) {
+    throw new Error("not authorized");
+  }
+
+  const myTournaments = await db.query.tournaments.findMany({
+    where: eq(tournaments.organizerId, userId),
+  });
+  return myTournaments;
 }
 
 export async function addTournament(tournament: {
@@ -20,9 +35,27 @@ export async function addTournament(tournament: {
 }
 
 export async function deleteTournament(tournamentId: number) {
+  const user = auth();
+  const userId = user.userId;
+
+  if (!userId) throw new Error("not authorized");
+
+  // Delete the tournament where the tournamentId and organizerId match
   const deletedTournament = await db
     .delete(tournaments)
-    .where(eq(tournaments.tournamentId, tournamentId));
+    .where(
+      and(
+        eq(tournaments.tournamentId, tournamentId),
+        eq(tournaments.organizerId, userId),
+      ),
+    )
+    .execute();
+
+  // Check if any rows were affected (i.e., the tournament was deleted)
+  if (deletedTournament.rowCount === 0) {
+    throw new Error("not authorized or tournament not found");
+  }
+
   return deletedTournament;
 }
 
