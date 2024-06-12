@@ -27,7 +27,7 @@ const AddTournamentForm = () => {
   return (
     <form onSubmit={handleSubmit} className="mb-4">
       <div className="mb-2">
-        <p htmlFor="name">Tournament Name</p>
+        <p>Tournament Name:</p>
         <Input name="name" ref={nameRef} required />
       </div>
       <Button>Add Tournament</Button>
