@@ -1,14 +1,28 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { type IUser } from "~/server/db/schema";
 import { setupUser } from "~/server/queries";
+// import { env } from "process";
+
+// import Twilio from "twilio";
+
+// Initialize Twilio client with your credentials
+// const twilioClient = Twilio(env.TWILIO_ACCOUNT_SID, env.TWILIO_AUTH_TOKEN);
 
 export async function POST(request: NextRequest) {
-  const { authId, name, email }: IUser = (await request.json()) as IUser; // TODO: get email address here rather than frontend
+  const { authId, name, email, phoneNumber }: IUser =
+    (await request.json()) as IUser; // TODO: get email address here rather than frontend
 
   try {
-    if (!authId || !name || !email) throw new Error("bad credentials");
+    if (!authId || !name || !email || !phoneNumber)
+      throw new Error("bad credentials");
 
-    await setupUser({ authId, name, email });
+    await setupUser({ authId, name, email, phoneNumber });
+    // await twilioClient.messages
+    //   .create({
+    //     body: `Hello ${name}, your account has been successfully set up!`,
+    //     from: env.TWILIO_PHONE_NUMBER, // Your Twilio phone number
+    //     to: phoneNumber,
+    //   });
     return NextResponse.json(
       { message: "User Setup Complete" },
       { status: 200 },

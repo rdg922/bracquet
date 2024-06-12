@@ -1,6 +1,7 @@
 import { db } from "./db";
 import { tournaments, users } from "./db/schema";
 import { eq } from "drizzle-orm";
+import { type IUser } from "~/server/db/schema";
 
 export async function getTournaments() {
   const tournaments = await db.query.tournaments.findMany();
@@ -47,14 +48,9 @@ export async function isUserSetup(authId: string) {
   return user.length > 0;
 }
 
-export async function setupUser({
-  authId,
-  name,
-  email,
-}: {
-  authId: string;
-  name: string;
-  email: string;
-}) {
-  return await db.insert(users).values({ authId, name, email }).execute();
+export async function setupUser({ authId, name, email, phoneNumber }: IUser) {
+  return await db
+    .insert(users)
+    .values({ authId, name, email, phoneNumber })
+    .execute();
 }

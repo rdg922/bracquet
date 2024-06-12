@@ -11,6 +11,7 @@ interface IsUserSetup {
 const AccountSetup: React.FC = () => {
   const { userId: authId } = useAuth();
   const nameRef = useRef<HTMLInputElement>(null);
+  const phoneNumberRef = useRef<HTMLInputElement>(null);
   const { user } = useUser();
   const email = user?.emailAddresses[0]?.emailAddress; // TODO: avoid sending address from front end
   const router = useRouter();
@@ -46,7 +47,8 @@ const AccountSetup: React.FC = () => {
     e.preventDefault();
 
     try {
-      const name = nameRef.current?.value || "";
+      const name = nameRef.current?.value ?? "";
+      const phoneNumber = phoneNumberRef.current?.value ?? "";
       const response = await fetch("/api/setupUser", {
         method: "POST",
         headers: {
@@ -55,6 +57,7 @@ const AccountSetup: React.FC = () => {
         body: JSON.stringify({
           authId,
           name,
+          phoneNumber,
           email,
         }),
       });
@@ -81,6 +84,10 @@ const AccountSetup: React.FC = () => {
         <div>
           <label htmlFor="name">Name</label>
           <input id="name" type="text" ref={nameRef} required />
+        </div>
+        <div>
+          <label htmlFor="phoneNumber">Phone Number</label>
+          <input id="phoneNumber" type="string" ref={phoneNumberRef} required />
         </div>
         <button type="submit">Submit</button>
       </form>

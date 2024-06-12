@@ -43,6 +43,7 @@ export const users = createTable(
   {
     userId: serial("user_id").primaryKey(),
     authId: varchar("auth_id", { length: 255 }).notNull().unique(),
+    phoneNumber: varchar("phone_number", { length: 12 }),
     name: varchar("name", { length: 255 }),
     email: varchar("email", { length: 255 }),
     schoolId: integer("school_id"),
@@ -56,6 +57,7 @@ export const users = createTable(
 
 export interface IUser {
   userId?: number; // Serial type for user_id
+  phoneNumber?: string; // Serial type for phone number
   authId: string; // Auth ID, must be unique
   name?: string; // Name, optional
   email?: string; // Email, optional
