@@ -6,7 +6,7 @@ import AddTournamentForm from "~/components/AddTournament";
 async function Tournaments() {
   const tournaments = (await getMyTournaments()) as ITournament[];
   return (
-    <div>
+    <div className="grid grid-cols-3 gap-8">
       {tournaments.map((tournament) => (
         <TournamentCard key={tournament.tournamentId} tournament={tournament} />
       ))}
@@ -15,9 +15,9 @@ async function Tournaments() {
 }
 export default async function Dashboard() {
   return (
-    <div className="bg-blue-200">
+    <main>
       <Tournaments />
       <AddTournamentForm />
-    </div>
+    </main>
   );
 }

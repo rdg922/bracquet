@@ -1,9 +1,12 @@
 import "~/styles/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Inter } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"] });
 
 import TopNav from "../components/topnav";
 
-import { GeistSans } from "geist/font/sans";
+import { ThemeProvider } from "~/components/theme-provider";
 
 export const metadata = {
   title: "Create T3 App",
@@ -18,10 +21,17 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${GeistSans.variable}`}>
+      <html lang="en" className={`${inter.className}`}>
         <body>
-          <TopNav />
-          {children}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <TopNav />
+            {children}
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

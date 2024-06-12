@@ -3,6 +3,14 @@
 import React from "react";
 import { type ITournament } from "~/server/db/schema";
 import { Button } from "./ui/button";
+import {
+  Card,
+  CardTitle,
+  CardFooter,
+  CardHeader,
+  CardContent,
+  CardDescription,
+} from "./ui/card";
 
 export default function TournamentCard({
   tournament,
@@ -11,7 +19,6 @@ export default function TournamentCard({
 }) {
   const handleDelete = async () => {
     try {
-      // Call the server function through an API route
       const response = await fetch("/api/deleteTournament", {
         method: "POST",
         headers: {
@@ -32,10 +39,30 @@ export default function TournamentCard({
   };
 
   return (
-    <div>
-      <div>{tournament.tournamentId}</div>
-      <h1>{tournament.name}</h1>
-      <Button onClick={handleDelete}>Delete!</Button>
-    </div>
+    <Card>
+      <CardHeader>
+        <div>
+          <CardTitle className="text-xl font-bold text-gray-800">
+            {tournament.name}
+          </CardTitle>
+          <CardDescription className="text-gray-500">
+            Organizer ID: {tournament.organizerId}
+          </CardDescription>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <p>ID: {tournament.tournamentId}</p>
+        <p>Start Time: </p>
+        <p>Venue: {tournament.venue}</p>
+      </CardContent>
+      <CardFooter>
+        <Button
+          onClick={handleDelete}
+          className="bg-red-500 text-white hover:bg-red-600"
+        >
+          Delete
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }
