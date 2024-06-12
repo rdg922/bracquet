@@ -6,6 +6,7 @@ import {
   SignOutButton,
 } from "@clerk/nextjs";
 import { Button } from "./ui/button";
+import { ModeToggle } from "./ModeToggle";
 
 export default function TopNav() {
   return (

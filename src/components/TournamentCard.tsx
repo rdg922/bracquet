@@ -42,24 +42,18 @@ export default function TournamentCard({
     <Card>
       <CardHeader>
         <div>
-          <CardTitle className="text-xl font-bold text-gray-800">
-            {tournament.name}
-          </CardTitle>
+          <CardTitle>{tournament.name}</CardTitle>
           <CardDescription className="text-gray-500">
             Organizer ID: {tournament.organizerId}
           </CardDescription>
         </div>
       </CardHeader>
       <CardContent>
-        <p>ID: {tournament.tournamentId}</p>
-        <p>Start Time: </p>
+        <p>Start Time: {tournament.startTime?.toString()}</p>
         <p>Venue: {tournament.venue}</p>
       </CardContent>
       <CardFooter>
-        <Button
-          onClick={handleDelete}
-          className="bg-red-500 text-white hover:bg-red-600"
-        >
+        <Button onClick={handleDelete} variant="destructive">
           Delete
         </Button>
       </CardFooter>
