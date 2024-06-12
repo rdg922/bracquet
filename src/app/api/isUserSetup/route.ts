@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import { type NextRequest, NextResponse } from "next/server";
 import { isUserSetup } from "~/server/queries"; // Adjust the path as needed
 

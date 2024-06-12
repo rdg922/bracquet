@@ -20,7 +20,7 @@ const AccountSetup: React.FC = () => {
   useEffect(() => {
     const checkUserSetup = async () => {
       try {
-        const response = await fetch(`/api/isUserSetup`);
+        const response = await fetch(`/api/isUserSetup?userId=${userId}`);
         if (response.ok) {
           const data = (await response.json()) as IsUserSetup;
           console.log(data.message);
@@ -39,6 +39,7 @@ const AccountSetup: React.FC = () => {
     };
 
     if (userId) {
+      console.log("ehllo");
       void checkUserSetup();
     }
   }, [userId, router]);
