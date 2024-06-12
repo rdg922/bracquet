@@ -4,6 +4,7 @@ import { addTournament } from "~/server/queries";
 
 interface TournamentRequestBody {
   name: string;
+  organizerId: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await addTournament({ name });
+    await addTournament({ name, organizerId: user.userId });
 
     return NextResponse.json({ message: "Tournament added successfully" });
   } catch (error) {

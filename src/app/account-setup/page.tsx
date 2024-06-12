@@ -9,7 +9,7 @@ interface IsUserSetup {
 }
 
 const AccountSetup: React.FC = () => {
-  const { userId: authId } = useAuth();
+  const { userId } = useAuth();
   const nameRef = useRef<HTMLInputElement>(null);
   const phoneNumberRef = useRef<HTMLInputElement>(null);
   const { user } = useUser();
@@ -20,7 +20,7 @@ const AccountSetup: React.FC = () => {
   useEffect(() => {
     const checkUserSetup = async () => {
       try {
-        const response = await fetch(`/api/isUserSetup?authId=${authId}`);
+        const response = await fetch(`/api/isUserSetup`);
         if (response.ok) {
           const data = (await response.json()) as IsUserSetup;
           console.log(data.message);
@@ -38,10 +38,10 @@ const AccountSetup: React.FC = () => {
       }
     };
 
-    if (authId) {
+    if (userId) {
       void checkUserSetup();
     }
-  }, [authId, router]);
+  }, [userId, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +55,6 @@ const AccountSetup: React.FC = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          authId,
           name,
           phoneNumber,
           email,

@@ -1,9 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { type NextRequest, NextResponse } from "next/server";
-import { deleteTournament } from "~/server/queries";
+import { deleteTournament, isTournamentOrganizer } from "~/server/queries";
 
 interface deleteTournamentRequestBody {
-  id: number;
+  tournamentId: number;
 }
 
 export async function POST(request: NextRequest) {
@@ -12,11 +12,17 @@ export async function POST(request: NextRequest) {
     if (!user.userId) {
       throw new Error("Not signed in");
     }
-    const { id } = (await request.json()) as deleteTournamentRequestBody;
 
-    // if (await !isUserOrganizer(user.userId, id))
+    const { tournamentId } =
+      (await request.json()) as deleteTournamentRequestBody;
+
+    if (
+      !(await isTournamentOrganizer({ organizerId: user.userId, tournamentId }))
+    )
+      throw new Error("Not organizer of this tournament");
+
     return NextResponse.json(
-      { message: deleteTournament(id) },
+      { message: deleteTournament(tournamentId) },
       { status: 200 },
     );
   } catch (error) {

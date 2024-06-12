@@ -8,7 +8,10 @@ export async function getTournaments() {
   return tournaments;
 }
 
-export async function addTournament(tournament: { name: string }) {
+export async function addTournament(tournament: {
+  name: string;
+  organizerId: string;
+}) {
   const newTournament = await db
     .insert(tournaments)
     .values(tournament)
@@ -16,15 +19,20 @@ export async function addTournament(tournament: { name: string }) {
   return newTournament;
 }
 
-export async function deleteTournament(id: number) {
-  console.log(id);
+export async function deleteTournament(tournamentId: number) {
   const deletedTournament = await db
     .delete(tournaments)
-    .where(eq(tournaments.tournamentId, id));
+    .where(eq(tournaments.tournamentId, tournamentId));
   return deletedTournament;
 }
 
-export async function isUserOrganizer(userId: number, tournamentId: number) {
+export async function isTournamentOrganizer({
+  organizerId,
+  tournamentId,
+}: {
+  organizerId: string;
+  tournamentId: number;
+}) {
   const tournament = await db
     .select()
     .from(tournaments)
@@ -32,25 +40,25 @@ export async function isUserOrganizer(userId: number, tournamentId: number) {
     .limit(1)
     .execute();
 
-  if (tournament.length > 0 && tournament[0]?.organizerId === userId) {
+  if (tournament.length > 0 && tournament[0]?.organizerId === organizerId) {
     return true;
   }
   return false;
 }
 
-export async function isUserSetup(authId: string) {
+export async function isUserSetup(userId: string) {
   const user = await db
     .select()
     .from(users)
-    .where(eq(users.authId, authId))
+    .where(eq(users.userId, userId))
     .limit(1)
     .execute();
   return user.length > 0;
 }
 
-export async function setupUser({ authId, name, email, phoneNumber }: IUser) {
+export async function setupUser({ userId, name, email, phoneNumber }: IUser) {
   return await db
     .insert(users)
-    .values({ authId, name, email, phoneNumber })
+    .values({ userId, name, email, phoneNumber })
     .execute();
 }

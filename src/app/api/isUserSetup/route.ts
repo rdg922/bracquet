@@ -3,14 +3,14 @@ import { isUserSetup } from "~/server/queries"; // Adjust the path as needed
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const authId = searchParams.get("authId");
+  const userId = searchParams.get("userId");
 
-  if (!authId) {
+  if (!userId) {
     return NextResponse.json({ message: "Bad request" }, { status: 400 });
   }
 
   try {
-    const result = await isUserSetup(authId);
+    const result = await isUserSetup(userId);
     return NextResponse.json({ message: result }, { status: 200 });
   } catch (error) {
     console.log(error);

@@ -41,8 +41,7 @@ export const gameStatusEnum = pgEnum("game_status", [
 export const users = createTable(
   "users",
   {
-    userId: serial("user_id").primaryKey(),
-    authId: varchar("auth_id", { length: 255 }).notNull().unique(),
+    userId: varchar("user_id", { length: 255 }).primaryKey(),
     phoneNumber: varchar("phone_number", { length: 12 }),
     name: varchar("name", { length: 255 }),
     email: varchar("email", { length: 255 }),
@@ -56,9 +55,8 @@ export const users = createTable(
 );
 
 export interface IUser {
-  userId?: number; // Serial type for user_id
-  phoneNumber?: string; // Serial type for phone number
-  authId: string; // Auth ID, must be unique
+  userId: string; // UUID or unique string type for user_id
+  phoneNumber?: string; // Phone number, optional
   name?: string; // Name, optional
   email?: string; // Email, optional
   schoolId?: number; // School ID, optional
@@ -76,7 +74,9 @@ export const tournaments = createTable(
     name: varchar("name", { length: 256 }).notNull(),
     startTime: timestamp("start_time", { withTimezone: true }),
     venue: varchar("venue", { length: 255 }),
-    organizerId: integer("organizer_id").references(() => users.userId),
+    organizerId: varchar("organizer_id", { length: 255 }).references(
+      () => users.userId,
+    ),
   },
   (tournaments) => {
     return {
@@ -92,7 +92,7 @@ export interface ITournament {
   name: string;
   startTime?: Date;
   venue?: string;
-  organizerId?: number;
+  organizerId?: string;
 }
 
 export const events = createTable(
@@ -139,7 +139,7 @@ export const participants = createTable(
   "participants",
   {
     participantId: serial("participant_id").primaryKey(),
-    userId: integer("user_id").references(() => users.userId),
+    userId: varchar("user_id", { length: 255 }).references(() => users.userId),
     gameId: integer("game_id").references(() => games.gameId),
   },
   (participants) => {
@@ -169,7 +169,7 @@ export const teamParticipants = createTable(
   {
     teamParticipantId: serial("team_participant_id").primaryKey(),
     teamId: integer("team_id").references(() => teams.teamId),
-    userId: integer("user_id").references(() => users.userId),
+    userId: varchar("user_id", { length: 255 }).references(() => users.userId),
   },
   (teamParticipants) => {
     return {
@@ -187,8 +187,12 @@ export const partnerRequests = createTable(
   "partner_requests",
   {
     requestId: serial("request_id").primaryKey(),
-    fromUserId: integer("from_user_id").references(() => users.userId),
-    toUserId: integer("to_user_id").references(() => users.userId),
+    fromUserId: varchar("from_user_id", { length: 255 }).references(
+      () => users.userId,
+    ),
+    toUserId: varchar("to_user_id", { length: 255 }).references(
+      () => users.userId,
+    ),
     eventId: integer("event_id").references(() => events.eventId),
     message: varchar("message", { length: 255 }),
   },
@@ -208,7 +212,7 @@ export const partnerSearches = createTable(
   "partner_searches",
   {
     searchId: serial("search_id").primaryKey(),
-    userId: integer("user_id").references(() => users.userId),
+    userId: varchar("user_id", { length: 255 }).references(() => users.userId),
     eventId: integer("event_id").references(() => events.eventId),
     searchStartTime: timestamp("search_start_time", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
