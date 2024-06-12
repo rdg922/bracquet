@@ -23,7 +23,7 @@ export default function TournamentCard({
       if (response.ok) {
         console.log("Tournament deleted successfully");
       } else {
-        const data = await response.json();
+        const data = (await response.json()) as { message: string };
         console.error("Error deleting tournament:", data.message);
       }
     } catch (error) {

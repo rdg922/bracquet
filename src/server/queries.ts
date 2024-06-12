@@ -51,10 +51,7 @@ export async function deleteTournament(tournamentId: number) {
     )
     .execute();
 
-  // Check if any rows were affected (i.e., the tournament was deleted)
-  if (deletedTournament.rowCount === 0) {
-    throw new Error("not authorized or tournament not found");
-  }
+  // TODO: Check if any rows were affected (i.e., the tournament was deleted)
 
   return deletedTournament;
 }
