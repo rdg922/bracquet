@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import { type ITournament } from "~/server/db/schema";
 import { Button } from "./ui/button";
@@ -10,6 +9,29 @@ import {
   CardContent,
   CardDescription,
 } from "./ui/card";
+import { deleteTournament } from "~/server/queries";
+
+//const handleDelete = async () => {
+//  try {
+//    const response = await fetch("/api/deleteTournament", {
+//      method: "POST",
+//      headers: {
+//        "Content-Type": "application/json",
+//      },
+//      body: JSON.stringify({ tournamentId: tournament.tournamentId }),
+//    });
+//
+//    if (response.ok) {
+//      console.log("Tournament deleted successfully");
+//    } else {
+//      const data = (await response.json()) as { message: string };
+//      console.error("Error deleting tournament:", data.message);
+//    }
+//  } catch (error) {
+//    console.error("Error deleting tournament:", error);
+//  }
+//};
+//
 
 export default function TournamentCard({
   tournament,
@@ -19,24 +41,14 @@ export default function TournamentCard({
   isOrganizer: boolean;
 }) {
   const handleDelete = async () => {
-    try {
-      const response = await fetch("/api/deleteTournament", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ tournamentId: tournament.tournamentId }),
-      });
+    "use server";
 
-      if (response.ok) {
-        console.log("Tournament deleted successfully");
-      } else {
-        const data = (await response.json()) as { message: string };
-        console.error("Error deleting tournament:", data.message);
-      }
-    } catch (error) {
-      console.error("Error deleting tournament:", error);
+    if (!tournament.tournamentId) {
+      console.error("Tournament ID is missing");
+      return;
     }
+
+    await deleteTournament(tournament.tournamentId);
   };
 
   return (
@@ -55,9 +67,9 @@ export default function TournamentCard({
       </CardContent>
       {isOrganizer && (
         <CardFooter>
-          <Button onClick={handleDelete} variant="destructive">
-            Delete
-          </Button>
+          <form action={handleDelete}>
+            <Button variant="destructive">Delete</Button>
+          </form>
         </CardFooter>
       )}
     </Card>
