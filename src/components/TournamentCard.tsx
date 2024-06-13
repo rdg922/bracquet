@@ -16,26 +16,26 @@ export default function TournamentCard({
 }: {
   tournament: ITournament;
 }) {
-  const handleDelete = async () => {
-    try {
-      const response = await fetch("/api/deleteTournament", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ tournamentId: tournament.tournamentId }),
-      });
-
-      if (response.ok) {
-        console.log("Tournament deleted successfully");
-      } else {
-        const data = (await response.json()) as { message: string };
-        console.error("Error deleting tournament:", data.message);
-      }
-    } catch (error) {
-      console.error("Error deleting tournament:", error);
-    }
-  };
+  //const handleDelete = async () => {
+  //  try {
+  //    const response = await fetch("/api/deleteTournament", {
+  //      method: "POST",
+  //      headers: {
+  //        "Content-Type": "application/json",
+  //      },
+  //      body: JSON.stringify({ tournamentId: tournament.tournamentId }),
+  //    });
+  //
+  //    if (response.ok) {
+  //      console.log("Tournament deleted successfully");
+  //    } else {
+  //      const data = (await response.json()) as { message: string };
+  //      console.error("Error deleting tournament:", data.message);
+  //    }
+  //  } catch (error) {
+  //    console.error("Error deleting tournament:", error);
+  //  }
+  //};
 
   return (
     <Card>
@@ -55,7 +55,7 @@ export default function TournamentCard({
         <Button
           onClick={async () => {
             "use server";
-            deleteTournament(tournament.tournamentId);
+            await deleteTournament(tournament.tournamentId);
           }}
           variant="destructive"
         >
