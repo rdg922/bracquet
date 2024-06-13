@@ -1,6 +1,5 @@
 "use client";
 
-import { useFieldArray, type Control } from "react-hook-form";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import {
@@ -10,6 +9,12 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
+import { z } from "zod";
+import {
+  type Control,
+  useFieldArray,
+  type ControllerRenderProps,
+} from "react-hook-form";
 
 import {
   Select,
@@ -19,7 +24,38 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 
-const AddEventForm = ({ control }: { control: Control }) => {
+const eventSchema = z.object({
+  name: z.string().min(2).max(256),
+  eventType: z.enum([
+    "m_single",
+    "m_double",
+    "w_single",
+    "w_double",
+    "x_double",
+  ]),
+  division: z.enum(["Novice", "Intermediate", "Open"]),
+  bracketType: z.enum([
+    "Single Elimination",
+    "Double Elimination",
+    "Single Elimination w/ Consolation",
+    "Round Robin",
+  ]),
+});
+
+const formSchema = z.object({
+  name: z.string().min(2).max(255),
+  startTime: z.date(),
+  venue: z.string().optional(),
+  events: z.array(eventSchema),
+});
+
+type TournamentFormValues = z.infer<typeof formSchema>;
+
+interface AddEventFormProps {
+  control: Control<TournamentFormValues>;
+}
+
+const AddEventForm: React.FC<AddEventFormProps> = ({ control }) => {
   const { fields, append, remove } = useFieldArray({
     control,
     name: "events",
@@ -33,7 +69,14 @@ const AddEventForm = ({ control }: { control: Control }) => {
           <FormField
             control={control}
             name={`events.${index}.name`}
-            render={({ field }) => (
+            render={({
+              field,
+            }: {
+              field: ControllerRenderProps<
+                TournamentFormValues,
+                `events.${number}.name`
+              >;
+            }) => (
               <FormItem>
                 <FormLabel>Event Name</FormLabel>
                 <FormControl>
@@ -46,12 +89,19 @@ const AddEventForm = ({ control }: { control: Control }) => {
           <FormField
             control={control}
             name={`events.${index}.eventType`}
-            render={({ field }) => (
+            render={({
+              field,
+            }: {
+              field: ControllerRenderProps<
+                TournamentFormValues,
+                `events.${number}.eventType`
+              >;
+            }) => (
               <FormItem>
                 <FormLabel>Event Type</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field?.value}
+                  defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -63,9 +113,7 @@ const AddEventForm = ({ control }: { control: Control }) => {
                     <SelectItem value="w_single">
                       Women&apos;s Singles
                     </SelectItem>
-                    <SelectItem value="m_double">
-                      Mens&apos;s Doubles
-                    </SelectItem>
+                    <SelectItem value="m_double">Men&apos;s Doubles</SelectItem>
                     <SelectItem value="w_double">
                       Women&apos;s Doubles
                     </SelectItem>
@@ -79,12 +127,19 @@ const AddEventForm = ({ control }: { control: Control }) => {
           <FormField
             control={control}
             name={`events.${index}.division`}
-            render={({ field }) => (
+            render={({
+              field,
+            }: {
+              field: ControllerRenderProps<
+                TournamentFormValues,
+                `events.${number}.division`
+              >;
+            }) => (
               <FormItem>
                 <FormLabel>Division</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field?.value}
+                  defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -104,12 +159,19 @@ const AddEventForm = ({ control }: { control: Control }) => {
           <FormField
             control={control}
             name={`events.${index}.bracketType`}
-            render={({ field }) => (
+            render={({
+              field,
+            }: {
+              field: ControllerRenderProps<
+                TournamentFormValues,
+                `events.${number}.bracketType`
+              >;
+            }) => (
               <FormItem>
-                <FormLabel>Division</FormLabel>
+                <FormLabel>Bracket Type</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field?.value}
+                  defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -117,7 +179,7 @@ const AddEventForm = ({ control }: { control: Control }) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="Single Eliminiation">
+                    <SelectItem value="Single Elimination">
                       Single Elimination
                     </SelectItem>
                     <SelectItem value="Double Elimination">
@@ -141,7 +203,12 @@ const AddEventForm = ({ control }: { control: Control }) => {
       <Button
         type="button"
         onClick={() =>
-          append({ name: "", type: "", division: "", bracketType: "" })
+          append({
+            name: "",
+            eventType: "m_single",
+            division: "Novice",
+            bracketType: "Single Elimination",
+          })
         }
       >
         Add Event
