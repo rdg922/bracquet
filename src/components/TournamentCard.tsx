@@ -1,7 +1,6 @@
-"use client";
-
 import React from "react";
 import { type ITournament } from "~/server/db/schema";
+import { deleteTournament } from "~/server/queries";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -53,7 +52,13 @@ export default function TournamentCard({
         <p>Venue: {tournament.venue}</p>
       </CardContent>
       <CardFooter>
-        <Button onClick={handleDelete} variant="destructive">
+        <Button
+          onClick={async () => {
+            "use server";
+            deleteTournament(tournament.tournamentId);
+          }}
+          variant="destructive"
+        >
           Delete
         </Button>
       </CardFooter>
