@@ -19,6 +19,20 @@ export async function getOthersTournaments() {
   return otherTournaments;
 }
 
+export async function getEvents(tournamentId: number) {
+  const eventsList = await db.query.events.findMany({
+    where: eq(events.tournamentId, tournamentId),
+  });
+  return eventsList;
+}
+
+export async function getTournament(tournamentId: number) {
+  const tournament = await db.query.tournaments.findFirst({
+    where: eq(tournaments.tournamentId, tournamentId),
+  });
+  return tournament;
+}
+
 export async function getMyTournaments() {
   const user = auth();
   const userId = user.userId;
@@ -37,7 +51,7 @@ export async function addTournament(tournament: ITournament) {
   const newTournament = await db
     .insert(tournaments)
     .values(tournament)
-    .execute();
+    .returning({ tournamentId: tournaments.tournamentId });
   return newTournament;
 }
 

@@ -55,13 +55,18 @@ export default function TournamentCard({
     <Card>
       <CardHeader>
         <div>
-          <CardTitle>{tournament.name}</CardTitle>
-          <CardDescription>
-            Organizer ID: {tournament.organizerId}
-          </CardDescription>
+          <CardTitle>
+            {
+              <a href={`/tournament/${tournament.tournamentId}`}>
+                {tournament.name}
+              </a>
+            }
+          </CardTitle>
+          <CardDescription>{tournament.tournamentId}</CardDescription>
         </div>
       </CardHeader>
       <CardContent>
+        <p>Organizer: {tournament.organizerId}</p>
         <p>Start Time: {tournament.startTime?.toISOString()}</p>
         <p>Venue: {tournament.venue}</p>
       </CardContent>

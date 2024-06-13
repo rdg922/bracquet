@@ -17,15 +17,18 @@ export async function POST(request: NextRequest) {
       typeof tournamentFormSchema
     >;
 
-    await addTournament({
+    const newTournament = await addTournament({
       ...(tournament as ITournament),
       organizerId: user.userId,
       startTime: new Date(tournament.startTime ?? Date.now()),
     });
 
+    if (!newTournament[0]?.tournamentId) throw new Error();
+
     for (const event of tournament.events) {
       await addEvent({
         ...event,
+        tournamentId: newTournament[0].tournamentId,
       });
     }
 
