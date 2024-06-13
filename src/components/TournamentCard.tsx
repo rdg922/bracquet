@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { type ITournament } from "~/server/db/schema";
-import { deleteTournament } from "~/server/queries";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -14,8 +13,10 @@ import {
 
 export default function TournamentCard({
   tournament,
+  isOrganizer,
 }: {
   tournament: ITournament;
+  isOrganizer: boolean;
 }) {
   const handleDelete = async () => {
     try {
@@ -49,14 +50,16 @@ export default function TournamentCard({
         </div>
       </CardHeader>
       <CardContent>
-        <p>Start Time: {tournament.startTime?.toString()}</p>
+        <p>Start Time: {tournament.startTime?.toISOString()}</p>
         <p>Venue: {tournament.venue}</p>
       </CardContent>
-      <CardFooter>
-        <Button onClick={handleDelete} variant="destructive">
-          Delete
-        </Button>
-      </CardFooter>
+      {isOrganizer && (
+        <CardFooter>
+          <Button onClick={handleDelete} variant="destructive">
+            Delete
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }

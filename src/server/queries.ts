@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { db } from "./db";
 import { tournaments, users } from "./db/schema";
 import { and, eq } from "drizzle-orm";
-import { type IUser } from "~/server/db/schema";
+import { type IUser, type ITournament } from "~/server/db/schema";
 
 export async function getTournaments() {
   const tournaments = await db.query.tournaments.findMany();
@@ -23,10 +23,7 @@ export async function getMyTournaments() {
   return myTournaments;
 }
 
-export async function addTournament(tournament: {
-  name: string;
-  organizerId: string;
-}) {
+export async function addTournament(tournament: ITournament) {
   const newTournament = await db
     .insert(tournaments)
     .values(tournament)

@@ -1,11 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { type NextRequest, NextResponse } from "next/server";
+import { type ITournament } from "~/server/db/schema";
 import { addTournament } from "~/server/queries";
-
-interface TournamentRequestBody {
-  name: string;
-  organizerId: string;
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,7 +11,7 @@ export async function POST(request: NextRequest) {
       throw new Error("unauth");
     }
 
-    const { name } = (await request.json()) as TournamentRequestBody;
+    const { name, startTime } = (await request.json()) as ITournament;
 
     if (!name) {
       return NextResponse.json(
@@ -24,7 +20,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await addTournament({ name, organizerId: user.userId });
+    await addTournament({
+      name,
+      organizerId: user.userId,
+      startTime: new Date(startTime ?? Date.now()),
+    });
 
     return NextResponse.json({ message: "Tournament added successfully" });
   } catch (error) {
