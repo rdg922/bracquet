@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { type ITournament } from "~/server/db/schema";
 import { deleteTournament } from "~/server/queries";
@@ -16,33 +17,33 @@ export default function TournamentCard({
 }: {
   tournament: ITournament;
 }) {
-  //const handleDelete = async () => {
-  //  try {
-  //    const response = await fetch("/api/deleteTournament", {
-  //      method: "POST",
-  //      headers: {
-  //        "Content-Type": "application/json",
-  //      },
-  //      body: JSON.stringify({ tournamentId: tournament.tournamentId }),
-  //    });
-  //
-  //    if (response.ok) {
-  //      console.log("Tournament deleted successfully");
-  //    } else {
-  //      const data = (await response.json()) as { message: string };
-  //      console.error("Error deleting tournament:", data.message);
-  //    }
-  //  } catch (error) {
-  //    console.error("Error deleting tournament:", error);
-  //  }
-  //};
+  const handleDelete = async () => {
+    try {
+      const response = await fetch("/api/deleteTournament", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ tournamentId: tournament.tournamentId }),
+      });
+
+      if (response.ok) {
+        console.log("Tournament deleted successfully");
+      } else {
+        const data = (await response.json()) as { message: string };
+        console.error("Error deleting tournament:", data.message);
+      }
+    } catch (error) {
+      console.error("Error deleting tournament:", error);
+    }
+  };
 
   return (
     <Card>
       <CardHeader>
         <div>
           <CardTitle>{tournament.name}</CardTitle>
-          <CardDescription className="text-gray-500">
+          <CardDescription>
             Organizer ID: {tournament.organizerId}
           </CardDescription>
         </div>
@@ -52,13 +53,7 @@ export default function TournamentCard({
         <p>Venue: {tournament.venue}</p>
       </CardContent>
       <CardFooter>
-        <Button
-          onClick={async () => {
-            "use server";
-            await deleteTournament(tournament.tournamentId);
-          }}
-          variant="destructive"
-        >
+        <Button onClick={handleDelete} variant="destructive">
           Delete
         </Button>
       </CardFooter>
