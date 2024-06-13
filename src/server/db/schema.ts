@@ -88,8 +88,8 @@ export const tournaments = createTable(
 );
 
 export interface ITournament {
-  tournamentId: number;
-  name: string;
+  tournamentId?: number;
+  name?: string;
   startTime?: Date;
   venue?: string;
   organizerId?: string;
