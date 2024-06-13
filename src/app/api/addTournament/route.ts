@@ -1,7 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { type NextRequest, NextResponse } from "next/server";
 import { type ITournament } from "~/server/db/schema";
-import { addTournament } from "~/server/queries";
+import { addEvent, addTournament } from "~/server/queries";
+import { type tournamentFormSchema } from "~/components/AddTournament";
+import { type z } from "zod";
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,20 +13,21 @@ export async function POST(request: NextRequest) {
       throw new Error("unauth");
     }
 
-    const tournament = (await request.json()) as ITournament;
-
-    // if (!tournament.name) {
-    //   return NextResponse.json(
-    //     { message: "Tournament name is required" },
-    //     { status: 400 },
-    //   );
-    // }
+    const tournament = (await request.json()) as z.infer<
+      typeof tournamentFormSchema
+    >;
 
     await addTournament({
-      ...tournament,
+      ...(tournament as ITournament),
       organizerId: user.userId,
       startTime: new Date(tournament.startTime ?? Date.now()),
     });
+
+    for (const event of tournament.events) {
+      await addEvent({
+        ...event,
+      });
+    }
 
     return NextResponse.json({ message: "Tournament added successfully" });
   } catch (error) {

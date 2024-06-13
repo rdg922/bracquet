@@ -17,7 +17,7 @@ import {
 import { DateTimePicker } from "~/components/ui/datetime-picker";
 import AddEventForm from "./AddEventForm"; // Import the AddEventForm component
 
-const formSchema = z.object({
+export const tournamentFormSchema = z.object({
   name: z.string().min(2).max(255),
   startTime: z.date(),
   venue: z.string().optional(),
@@ -31,19 +31,20 @@ const formSchema = z.object({
         "w_double",
         "x_double",
       ]),
-      division: z.enum(["Novice", "Intermediate", "Open"]),
+      division: z.enum(["novice", "intermediate", "open"]),
       bracketType: z.enum([
-        "Single Elimination",
-        "Double Elimination",
-        "Single Elimination w/ Consolation",
-        "Round Robin",
+        "single_elim",
+        "double_elim",
+        "single_consol",
+        "round_robin",
+        "custom",
       ]),
     }),
   ),
 });
 
 const AddTournamentForm = () => {
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof tournamentFormSchema>) => {
     const response = await fetch("/api/addTournament", {
       method: "POST",
       body: JSON.stringify({
@@ -58,8 +59,8 @@ const AddTournamentForm = () => {
     }
   };
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof tournamentFormSchema>>({
+    resolver: zodResolver(tournamentFormSchema),
     defaultValues: {
       name: "My Tournament",
       startTime: new Date(),

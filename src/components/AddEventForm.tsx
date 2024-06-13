@@ -9,7 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
-import { z } from "zod";
+import { type z } from "zod";
 import {
   type Control,
   useFieldArray,
@@ -23,33 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { type tournamentFormSchema } from "./AddTournament";
 
-const eventSchema = z.object({
-  name: z.string().min(2).max(256),
-  eventType: z.enum([
-    "m_single",
-    "m_double",
-    "w_single",
-    "w_double",
-    "x_double",
-  ]),
-  division: z.enum(["Novice", "Intermediate", "Open"]),
-  bracketType: z.enum([
-    "Single Elimination",
-    "Double Elimination",
-    "Single Elimination w/ Consolation",
-    "Round Robin",
-  ]),
-});
-
-const formSchema = z.object({
-  name: z.string().min(2).max(255),
-  startTime: z.date(),
-  venue: z.string().optional(),
-  events: z.array(eventSchema),
-});
-
-type TournamentFormValues = z.infer<typeof formSchema>;
+type TournamentFormValues = z.infer<typeof tournamentFormSchema>;
 
 interface AddEventFormProps {
   control: Control<TournamentFormValues>;
@@ -147,9 +123,9 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ control }) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="Novice">Novice</SelectItem>
-                    <SelectItem value="Intermediate">Intermediate</SelectItem>
-                    <SelectItem value="Open">Open</SelectItem>
+                    <SelectItem value="novice">Novice</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="open">Open</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -179,16 +155,16 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ control }) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="Single Elimination">
+                    <SelectItem value="single_elim">
                       Single Elimination
                     </SelectItem>
-                    <SelectItem value="Double Elimination">
+                    <SelectItem value="double_elim">
                       Double Elimination
                     </SelectItem>
-                    <SelectItem value="Single Elimination w/ Consolation">
+                    <SelectItem value="single_consol">
                       Single Elimination w/ Consolation
                     </SelectItem>
-                    <SelectItem value="Round Robin">Round Robin</SelectItem>
+                    <SelectItem value="round_robin">Round Robin</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -206,8 +182,8 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ control }) => {
           append({
             name: "",
             eventType: "m_single",
-            division: "Novice",
-            bracketType: "Single Elimination",
+            division: "novice",
+            bracketType: "single_elim",
           })
         }
       >

@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { sql } from "drizzle-orm";
 import {
   index,
@@ -9,14 +10,36 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 
-export const createTable = pgTableCreator((name) => `bracquet_${name}`);
-export const divisionTypeEnum = pgEnum("division", [
+// Define Enums using Zod
+export const divisionTypeEnum = z.enum(["novice", "intermediate", "open"]);
+export const eventTypeEnum = z.enum([
+  "m_single",
+  "w_single",
+  "m_double",
+  "w_double",
+  "x_double",
+]);
+export const bracketTypeEnum = z.enum([
+  "single_elim",
+  "double_elim",
+  "single_consol",
+  "round_robin",
+  "custom",
+]);
+export const gameStatusEnum = z.enum([
+  "not started",
+  "in progress",
+  "finished",
+]);
+
+// Define Enums using Drizzle-ORM
+export const divisionTypeEnumDb = pgEnum("division", [
   "novice",
   "intermediate",
   "open",
 ]);
 
-export const eventTypeEnum = pgEnum("event_type", [
+export const eventTypeEnumDb = pgEnum("event_type", [
   "m_single",
   "w_single",
   "m_double",
@@ -24,7 +47,7 @@ export const eventTypeEnum = pgEnum("event_type", [
   "x_double",
 ]);
 
-export const bracketTypeEnum = pgEnum("bracket_type", [
+export const bracketTypeEnumDb = pgEnum("bracket_type", [
   "single_elim",
   "double_elim",
   "single_consol",
@@ -32,12 +55,47 @@ export const bracketTypeEnum = pgEnum("bracket_type", [
   "custom",
 ]);
 
-export const gameStatusEnum = pgEnum("game_status", [
+export const gameStatusEnumDb = pgEnum("game_status", [
   "not started",
   "in progress",
   "finished",
 ]);
 
+// Define Schemas using Zod
+export const userSchema = z.object({
+  userId: z.string().uuid(),
+  phoneNumber: z.string().optional(),
+  name: z.string().optional(),
+  email: z.string().optional(),
+  schoolId: z.number().optional(),
+});
+
+export const tournamentSchema = z.object({
+  tournamentId: z.number().optional(),
+  name: z.string().optional(),
+  startTime: z.date().optional(),
+  venue: z.string().optional(),
+  organizerId: z.string().uuid().optional(),
+});
+
+export const eventSchema = z.object({
+  eventId: z.number().optional(),
+  tournamentId: z.number().optional(),
+  name: z.string().optional(),
+  eventType: eventTypeEnum,
+  division: divisionTypeEnum,
+  bracketType: bracketTypeEnum,
+});
+
+// Define Types from Schemas
+export type IUser = z.infer<typeof userSchema>;
+export type ITournament = z.infer<typeof tournamentSchema>;
+export type IEvent = z.infer<typeof eventSchema>;
+
+// Create Table Helper
+export const createTable = pgTableCreator((name) => `bracquet_${name}`);
+
+// Create Tables
 export const users = createTable(
   "users",
   {
@@ -53,14 +111,6 @@ export const users = createTable(
     };
   },
 );
-
-export interface IUser {
-  userId: string; // UUID or unique string type for user_id
-  phoneNumber?: string; // Phone number, optional
-  name?: string; // Name, optional
-  email?: string; // Email, optional
-  schoolId?: number; // School ID, optional
-}
 
 export const schools = createTable("schools", {
   schoolId: serial("school_id").primaryKey(),
@@ -87,14 +137,6 @@ export const tournaments = createTable(
   },
 );
 
-export interface ITournament {
-  tournamentId?: number;
-  name?: string;
-  startTime?: Date;
-  venue?: string;
-  organizerId?: string;
-}
-
 export const events = createTable(
   "events",
   {
@@ -102,10 +144,19 @@ export const events = createTable(
     tournamentId: integer("tournament_id").references(
       () => tournaments.tournamentId,
     ),
-    name: varchar("name", { length: 256 }).notNull(),
-    type: eventTypeEnum("event_type"),
-    division: divisionTypeEnum("division"),
-    bracketType: bracketTypeEnum("bracket_type"),
+    name: varchar("name", { length: 256 }),
+    eventType: varchar("event_type", {
+      length: 50,
+      enum: eventTypeEnum.options,
+    }), // Corrected usage
+    division: varchar("division", {
+      length: 50,
+      enum: divisionTypeEnum.options,
+    }), // Corrected usage
+    bracketType: varchar("bracket_type", {
+      length: 50,
+      enum: bracketTypeEnum.options,
+    }), // Corrected usage
   },
   (events) => {
     return {
@@ -116,15 +167,6 @@ export const events = createTable(
   },
 );
 
-export interface IEvent {
-  eventId?: number;
-  tournamentId?: number;
-  name?: string;
-  type?: string;
-  division?: string;
-  bracketType?: string;
-}
-
 export const games = createTable(
   "games",
   {
@@ -133,7 +175,7 @@ export const games = createTable(
     bracketPosition: integer("bracket_position"),
     startTime: timestamp("start_time", { withTimezone: true }),
     venue: varchar("venue", { length: 255 }),
-    status: gameStatusEnum("status"),
+    status: varchar("status", { length: 50, enum: gameStatusEnum.options }), // Corrected usage
     score: varchar("score", { length: 1024 }), // Using varchar to store JSON as text
   },
   (games) => {

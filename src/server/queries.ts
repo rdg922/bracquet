@@ -1,8 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "./db";
-import { tournaments, users } from "./db/schema";
+import { tournaments, users, events } from "./db/schema";
 import { and, eq } from "drizzle-orm";
-import { type IUser, type ITournament } from "~/server/db/schema";
+import { type IUser, type IEvent, type ITournament } from "~/server/db/schema";
 
 export async function getTournaments() {
   const tournaments = await db.query.tournaments.findMany();
@@ -29,6 +29,11 @@ export async function addTournament(tournament: ITournament) {
     .values(tournament)
     .execute();
   return newTournament;
+}
+
+export async function addEvent(event: IEvent) {
+  const newEvent = await db.insert(events).values(event).execute();
+  return newEvent;
 }
 
 export async function deleteTournament(tournamentId: number) {
