@@ -15,11 +15,31 @@ import {
   FormMessage,
 } from "./ui/form";
 import { DateTimePicker } from "~/components/ui/datetime-picker";
+import AddEventForm from "./AddEventForm"; // Import the AddEventForm component
 
 const formSchema = z.object({
   name: z.string().min(2).max(255),
   startTime: z.date(),
   venue: z.string().optional(),
+  events: z.array(
+    z.object({
+      name: z.string().min(2).max(256),
+      eventType: z.enum([
+        "m_single",
+        "m_double",
+        "w_single",
+        "w_double",
+        "x_double",
+      ]),
+      division: z.enum(["Novice", "Intermediate", "Open"]),
+      bracketType: z.enum([
+        "Single Elimination",
+        "Double Elimination",
+        "Single Elimination w/ Consolation",
+        "Round Robin",
+      ]),
+    }),
+  ),
 });
 
 const AddTournamentForm = () => {
@@ -43,6 +63,7 @@ const AddTournamentForm = () => {
     defaultValues: {
       name: "My Tournament",
       startTime: new Date(),
+      events: [],
     },
   });
 
@@ -50,7 +71,7 @@ const AddTournamentForm = () => {
     <div className="pt-6">
       <h2 className="my-6">Add Tournament</h2>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form onClick={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
             name="name"
@@ -97,6 +118,7 @@ const AddTournamentForm = () => {
               </FormItem>
             )}
           />
+          <AddEventForm control={form.control} />
           <Button type="submit">Submit</Button>
         </form>
       </Form>

@@ -116,6 +116,15 @@ export const events = createTable(
   },
 );
 
+export interface IEvent {
+  eventId?: number;
+  tournamentId?: number;
+  name?: string;
+  type?: string;
+  division?: string;
+  bracketType?: string;
+}
+
 export const games = createTable(
   "games",
   {
