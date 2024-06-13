@@ -1,12 +1,22 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "./db";
 import { tournaments, users, events } from "./db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, not } from "drizzle-orm";
 import { type IUser, type IEvent, type ITournament } from "~/server/db/schema";
 
 export async function getTournaments() {
   const tournaments = await db.query.tournaments.findMany();
   return tournaments;
+}
+
+export async function getOthersTournaments() {
+  const user = auth();
+  const userId = user.userId ?? "";
+
+  const otherTournaments = await db.query.tournaments.findMany({
+    where: not(eq(tournaments.organizerId, userId)),
+  });
+  return otherTournaments;
 }
 
 export async function getMyTournaments() {
