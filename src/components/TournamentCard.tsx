@@ -13,7 +13,7 @@ import {
 
 export default function TournamentCard({
   tournament,
-  isOrganizer,
+  isOrganizer = false,
 }: {
   tournament: ITournament;
   isOrganizer: boolean;
