@@ -75,7 +75,6 @@ const AddTournamentForm = () => {
                     granularity="second"
                     jsDate={field.value}
                     onJsDateChange={field.onChange}
-                    suppressHydrationWarning
                   />
                 </FormControl>
                 <FormDescription>

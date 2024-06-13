@@ -71,7 +71,7 @@ export const tournaments = createTable(
   "tournaments",
   {
     tournamentId: serial("tournament_id").primaryKey(),
-    name: varchar("name", { length: 256 }).notNull(),
+    name: varchar("name", { length: 256 }),
     startTime: timestamp("start_time", { withTimezone: true }),
     venue: varchar("venue", { length: 255 }),
     organizerId: varchar("organizer_id", { length: 255 }).references(
