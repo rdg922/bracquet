@@ -6,7 +6,7 @@ import AddTournamentForm from "~/components/AddTournament";
 async function Tournaments() {
   const tournaments = (await getMyTournaments()) as ITournament[];
   return (
-    <div className="grid grid-cols-3 gap-8">
+    <div className="grid gap-8 sm:grid-cols-1 lg:grid-cols-3">
       {tournaments.map((tournament) => (
         <TournamentCard key={tournament.tournamentId} tournament={tournament} />
       ))}
