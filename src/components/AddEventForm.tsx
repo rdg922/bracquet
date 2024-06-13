@@ -63,7 +63,7 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ control }) => {
 
   return (
     <div>
-      <h2>Add Events</h2>
+      <h3 className="mb-4">Add Events</h3>
       {fields.map((field, index) => (
         <div key={field.id} className="space-y-4 py-4">
           <FormField
