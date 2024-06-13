@@ -23,7 +23,11 @@ async function AllTournaments() {
   return (
     <div className="grid gap-8 sm:grid-cols-1 lg:grid-cols-3">
       {tournaments.map((tournament) => (
-        <TournamentCard key={tournament.tournamentId} tournament={tournament} />
+        <TournamentCard
+          key={tournament.tournamentId}
+          tournament={tournament}
+          isOrganizer={false}
+        />
       ))}
     </div>
   );
