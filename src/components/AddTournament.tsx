@@ -19,6 +19,7 @@ import { DateTimePicker } from "~/components/ui/datetime-picker";
 const formSchema = z.object({
   name: z.string().min(2).max(255),
   startTime: z.date(),
+  venue: z.string().optional(),
 });
 
 const AddTournamentForm = () => {
@@ -26,8 +27,7 @@ const AddTournamentForm = () => {
     const response = await fetch("/api/addTournament", {
       method: "POST",
       body: JSON.stringify({
-        name: values.name,
-        startTime: values.startTime,
+        ...values,
       }),
     });
 
@@ -47,8 +47,8 @@ const AddTournamentForm = () => {
   });
 
   return (
-    <div className="py-6">
-      <h1 className="py-6">Add Tournament</h1>
+    <div className="pt-6">
+      <h2 className="my-6">Add Tournament</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
@@ -80,6 +80,19 @@ const AddTournamentForm = () => {
                 <FormDescription>
                   This is separate from the times of your events
                 </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="venue"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Venue</FormLabel>
+                <FormControl>
+                  <Input placeholder="Venue Location" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

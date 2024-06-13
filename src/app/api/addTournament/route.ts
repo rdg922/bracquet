@@ -11,19 +11,19 @@ export async function POST(request: NextRequest) {
       throw new Error("unauth");
     }
 
-    const { name, startTime } = (await request.json()) as ITournament;
+    const tournament = (await request.json()) as ITournament;
 
-    if (!name) {
-      return NextResponse.json(
-        { message: "Tournament name is required" },
-        { status: 400 },
-      );
-    }
+    // if (!tournament.name) {
+    //   return NextResponse.json(
+    //     { message: "Tournament name is required" },
+    //     { status: 400 },
+    //   );
+    // }
 
     await addTournament({
-      name,
+      ...tournament,
       organizerId: user.userId,
-      startTime: new Date(startTime ?? Date.now()),
+      startTime: new Date(tournament.startTime ?? Date.now()),
     });
 
     return NextResponse.json({ message: "Tournament added successfully" });
