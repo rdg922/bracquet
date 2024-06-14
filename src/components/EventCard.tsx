@@ -37,7 +37,11 @@ export default function EventCard({ event }: { event: IEvent }) {
         <Button>Register</Button>
       </form>
     ) : (
-      <Button>Go to Event</Button>
+      <Button>
+        <a href={`/tournament/${event.tournamentId}/event/${event.eventId}`}>
+          Go to Event
+        </a>
+      </Button>
     );
   }
   return (

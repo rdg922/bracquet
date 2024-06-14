@@ -1,14 +1,14 @@
 import { getTournament, getEvents } from "~/server/queries";
 import { notFound } from "next/navigation";
-import EventCard from "~/components/eventCard";
+import EventCard from "~/components/EventCard";
 import { type IEvent } from "~/server/db/schema";
 
 export default async function TournamentPage({
   params,
 }: {
-  params: { id: string };
+  params: { tournamentId: string };
 }) {
-  const tournamentId = parseInt(params.id);
+  const tournamentId = parseInt(params.tournamentId);
   const tournament = await getTournament(tournamentId);
   const events: IEvent[] = await getEvents(tournamentId);
 
