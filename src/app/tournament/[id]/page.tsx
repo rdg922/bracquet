@@ -1,4 +1,4 @@
-import { getTournament, getEvents, deleteEvent } from "~/server/queries";
+import { getTournament, getEvents } from "~/server/queries";
 import { notFound } from "next/navigation";
 import EventCard from "~/components/eventCard";
 import { type IEvent } from "~/server/db/schema";

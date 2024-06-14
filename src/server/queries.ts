@@ -1,8 +1,13 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "./db";
-import { tournaments, users, events } from "./db/schema";
+import { tournaments, users, events, registrations } from "./db/schema";
 import { and, eq, not } from "drizzle-orm";
-import { type IUser, type IEvent, type ITournament } from "~/server/db/schema";
+import {
+  type IUser,
+  type IEvent,
+  type ITournament,
+  type IRegistration,
+} from "~/server/db/schema";
 
 export async function getTournaments() {
   const tournaments = await db.query.tournaments.findMany();
@@ -31,6 +36,43 @@ export async function getTournament(tournamentId: number) {
     where: eq(tournaments.tournamentId, tournamentId),
   });
   return tournament;
+}
+
+export async function isRegisteredForEvent(
+  userId: string,
+  eventId: number,
+): Promise<boolean> {
+  const registration = await db.query.registrations.findFirst({
+    where: and(
+      eq(registrations.userId, userId),
+      eq(registrations.eventId, eventId),
+    ),
+  });
+  console.log(registration, "registration");
+  return !!registration;
+}
+
+export async function isMeRegisteredForEvent(eventId: number) {
+  const user = auth();
+  const userId = user.userId;
+  if (!userId) {
+    throw new Error("not authorized");
+  }
+  return isRegisteredForEvent(userId, eventId);
+}
+
+export async function registerMeForEvent(eventId: number) {
+  const user = auth();
+  const userId = user.userId;
+  if (!userId) {
+    throw new Error("not authorized");
+  }
+  const newRegistration = await db
+    .insert(registrations)
+    .values({ userId, eventId })
+    .returning();
+  console.log(newRegistration);
+  return newRegistration;
 }
 
 export async function getMyTournaments() {

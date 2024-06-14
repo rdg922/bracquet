@@ -1,4 +1,3 @@
-import { type IEvent } from "~/server/db/schema";
 import {
   Card,
   CardContent,
@@ -6,8 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { type IEvent } from "~/server/db/schema";
 import { Button } from "~/components/ui/button";
-import { deleteEvent } from "~/server/queries";
+import {
+  deleteEvent,
+  isMeRegisteredForEvent,
+  registerMeForEvent,
+} from "~/server/queries";
 
 export default function EventCard({ event }: { event: IEvent }) {
   async function deleteEventAction() {
@@ -18,6 +22,24 @@ export default function EventCard({ event }: { event: IEvent }) {
     await deleteEvent(event.eventId);
   }
 
+  async function registerEventAction() {
+    "use server";
+    if (!event.eventId) {
+      throw new Error("Event ID is required to register for an event");
+    }
+    await registerMeForEvent(event.eventId);
+  }
+
+  async function RegisterButton({ eventId }: { eventId: number | undefined }) {
+    const isRegistered = eventId && (await isMeRegisteredForEvent(eventId));
+    return !isRegistered ? (
+      <form action={registerEventAction}>
+        <Button>Register</Button>
+      </form>
+    ) : (
+      <Button>Go to Event</Button>
+    );
+  }
   return (
     <Card key={event.eventId}>
       <CardHeader>
@@ -28,8 +50,8 @@ export default function EventCard({ event }: { event: IEvent }) {
         <p>Division: {event.division}</p>
         <p>Bracket Type: {event.bracketType}</p>
       </CardContent>
-      <CardFooter>
-        <Button>Register</Button>
+      <CardFooter className="flex space-x-2">
+        <RegisterButton eventId={event.eventId} />
         <form action={deleteEventAction}>
           <Button variant="destructive">Delete</Button>
         </form>

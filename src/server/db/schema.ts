@@ -7,7 +7,6 @@ import {
   timestamp,
   varchar,
   integer,
-  pgEnum,
 } from "drizzle-orm/pg-core";
 
 // Define Enums using Zod
@@ -51,17 +50,24 @@ export const tournamentSchema = z.object({
 
 export const eventSchema = z.object({
   eventId: z.number().optional(),
-  tournamentId: z.number().optional().nullable(),
+  tournamentId: z.number().nullish(),
   name: z.string().nullish(),
   eventType: eventTypeEnum,
   division: divisionTypeEnum,
   bracketType: bracketTypeEnum,
 });
 
+export const registrationSchema = z.object({
+  registrationId: z.number().optional(),
+  userId: z.string().uuid().optional(),
+  eventId: z.number().optional(),
+});
+
 // Define Types from Schemas
 export type IUser = z.infer<typeof userSchema>;
 export type ITournament = z.infer<typeof tournamentSchema>;
 export type IEvent = z.infer<typeof eventSchema>;
+export type IRegistration = z.infer<typeof registrationSchema>;
 
 // Create Table Helper
 export const createTable = pgTableCreator((name) => `bracquet_${name}`);
@@ -79,6 +85,21 @@ export const users = createTable(
   (users) => {
     return {
       userIdIndex: index("users_user_id_idx").on(users.userId),
+    };
+  },
+);
+
+export const registrations = createTable(
+  "registrations",
+  {
+    registrationId: serial("registration_id").primaryKey(),
+    userId: varchar("user_id", { length: 255 }).references(() => users.userId),
+    eventId: integer("event_id").references(() => events.eventId),
+  },
+  (registration) => {
+    return {
+      userIdIndex: index("registration_user_id_idx").on(registration.userId),
+      eventIdIndex: index("registration_event_id_idx").on(registration.eventId),
     };
   },
 );
