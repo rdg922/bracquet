@@ -1,13 +1,7 @@
-import { getTournament, getEvents } from "~/server/queries";
+import { getTournament, getEvents, deleteEvent } from "~/server/queries";
 import { notFound } from "next/navigation";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Button } from "~/components/ui/button";
+import EventCard from "~/components/eventCard";
+import { type IEvent } from "~/server/db/schema";
 
 export default async function TournamentPage({
   params,
@@ -16,9 +10,7 @@ export default async function TournamentPage({
 }) {
   const tournamentId = parseInt(params.id);
   const tournament = await getTournament(tournamentId);
-  const events = await getEvents(tournamentId);
-
-  console.log(events);
+  const events: IEvent[] = await getEvents(tournamentId);
 
   if (!tournament) {
     return notFound();
@@ -34,20 +26,8 @@ export default async function TournamentPage({
       <p>Venue: {tournament.venue}</p>
       <h2>Events</h2>
       <ul>
-        {events.map((event) => (
-          <Card key={event.eventId}>
-            <CardHeader>
-              <CardTitle>{event.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Type: {event.eventType}</p>
-              <p>Division: {event.division}</p>
-              <p>Bracket Type: {event.bracketType}</p>
-            </CardContent>
-            <CardFooter>
-              <Button>Register</Button>
-            </CardFooter>
-          </Card>
+        {events.map((event: IEvent) => (
+          <EventCard key={event.eventId} event={event} />
         ))}
       </ul>
     </main>

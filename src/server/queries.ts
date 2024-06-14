@@ -19,7 +19,7 @@ export async function getOthersTournaments() {
   return otherTournaments;
 }
 
-export async function getEvents(tournamentId: number) {
+export async function getEvents(tournamentId: number): Promise<IEvent[]> {
   const eventsList = await db.query.events.findMany({
     where: eq(events.tournamentId, tournamentId),
   });
@@ -58,6 +58,18 @@ export async function addTournament(tournament: ITournament) {
 export async function addEvent(event: IEvent) {
   const newEvent = await db.insert(events).values(event).execute();
   return newEvent;
+}
+
+export async function deleteEvent(eventId: number) {
+  const user = auth();
+  const userId = user.userId;
+  if (!userId) throw new Error("not authorized");
+  // Delete the event where the eventId and userId match
+  const deletedEvent = await db
+    .delete(events)
+    .where(and(eq(events.eventId, eventId)))
+    .execute();
+  return deletedEvent;
 }
 
 export async function deleteTournament(tournamentId: number) {

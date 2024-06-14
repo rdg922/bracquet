@@ -39,7 +39,6 @@ const AccountSetup: React.FC = () => {
     };
 
     if (userId) {
-      console.log("ehllo");
       void checkUserSetup();
     }
   }, [userId, router]);

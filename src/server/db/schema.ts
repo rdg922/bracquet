@@ -32,35 +32,6 @@ export const gameStatusEnum = z.enum([
   "finished",
 ]);
 
-// Define Enums using Drizzle-ORM
-export const divisionTypeEnumDb = pgEnum("division", [
-  "novice",
-  "intermediate",
-  "open",
-]);
-
-export const eventTypeEnumDb = pgEnum("event_type", [
-  "m_single",
-  "w_single",
-  "m_double",
-  "w_double",
-  "x_double",
-]);
-
-export const bracketTypeEnumDb = pgEnum("bracket_type", [
-  "single_elim",
-  "double_elim",
-  "single_consol",
-  "round_robin",
-  "custom",
-]);
-
-export const gameStatusEnumDb = pgEnum("game_status", [
-  "not started",
-  "in progress",
-  "finished",
-]);
-
 // Define Schemas using Zod
 export const userSchema = z.object({
   userId: z.string().uuid(),
@@ -80,8 +51,8 @@ export const tournamentSchema = z.object({
 
 export const eventSchema = z.object({
   eventId: z.number().optional(),
-  tournamentId: z.number().optional(),
-  name: z.string().optional(),
+  tournamentId: z.number().optional().nullable(),
+  name: z.string().nullish(),
   eventType: eventTypeEnum,
   division: divisionTypeEnum,
   bracketType: bracketTypeEnum,
@@ -148,15 +119,15 @@ export const events = createTable(
     eventType: varchar("event_type", {
       length: 50,
       enum: eventTypeEnum.options,
-    }), // Corrected usage
+    }).notNull(), // Corrected usage
     division: varchar("division", {
       length: 50,
       enum: divisionTypeEnum.options,
-    }), // Corrected usage
+    }).notNull(), // Corrected usage
     bracketType: varchar("bracket_type", {
       length: 50,
       enum: bracketTypeEnum.options,
-    }), // Corrected usage
+    }).notNull(), // Corrected usage
   },
   (events) => {
     return {
@@ -166,6 +137,7 @@ export const events = createTable(
     };
   },
 );
+// wait tf where is null coming from then
 
 export const games = createTable(
   "games",
