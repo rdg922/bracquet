@@ -1,17 +1,22 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "./db";
-import { tournaments, users, events, registrations } from "./db/schema";
+import { tournaments, users, events, registrations, games } from "./db/schema";
 import { and, eq, not } from "drizzle-orm";
 import {
   type IUser,
   type IEvent,
   type ITournament,
   type IRegistration,
+  type IGame,
 } from "~/server/db/schema";
 
 export async function getTournaments() {
   const tournaments = await db.query.tournaments.findMany();
   return tournaments;
+}
+
+export async function addGames(newGames: IGame[]): Promise<IGame[]> {
+  return await db.insert(games).values(newGames).returning();
 }
 
 export async function getOthersTournaments() {
@@ -29,6 +34,13 @@ export async function getEvents(tournamentId: number): Promise<IEvent[]> {
     where: eq(events.tournamentId, tournamentId),
   });
   return eventsList;
+}
+
+export async function getGames(eventId: number): Promise<IGame[]> {
+  const gamesList = await db.query.games.findMany({
+    where: eq(games.eventId, eventId),
+  });
+  return gamesList;
 }
 
 export async function getTournament(tournamentId: number) {
@@ -50,6 +62,18 @@ export async function isRegisteredForEvent(
   });
   console.log(registration, "registration");
   return !!registration;
+}
+
+export async function deleteBracket(eventId: number) {
+  const user = auth();
+  const userId = user.userId;
+  if (!userId) throw new Error("not authorized");
+  // Delete the event where the eventId and userId match
+  const deletedBracket = await db
+    .delete(games)
+    .where(and(eq(games.eventId, eventId)))
+    .execute();
+  return deletedBracket;
 }
 
 export async function isMeRegisteredForEvent(eventId: number) {
@@ -112,6 +136,13 @@ export async function deleteEvent(eventId: number) {
     .where(and(eq(events.eventId, eventId)))
     .execute();
   return deletedEvent;
+}
+
+export async function getRegistrations(eventId: number) {
+  const registrationsList = await db.query.registrations.findMany({
+    where: eq(registrations.eventId, eventId),
+  });
+  return registrationsList;
 }
 
 export async function deleteTournament(tournamentId: number) {

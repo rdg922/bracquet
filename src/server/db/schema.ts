@@ -7,6 +7,7 @@ import {
   timestamp,
   varchar,
   integer,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // Define Enums using Zod
@@ -58,9 +59,19 @@ export const eventSchema = z.object({
 });
 
 export const registrationSchema = z.object({
-  registrationId: z.number().optional(),
-  userId: z.string().uuid().optional(),
-  eventId: z.number().optional(),
+  registrationId: z.number().nullish(),
+  userId: z.string().uuid().nullish(),
+  eventId: z.number().nullish(),
+});
+
+export const gameSchema = z.object({
+  gameId: z.number().optional(),
+  eventId: z.number().nullish(),
+  bracketPosition: z.number().nullish(),
+  startTime: z.date().nullish(),
+  venue: z.string().nullish(),
+  status: gameStatusEnum,
+  data: z.string().nullish(),
 });
 
 // Define Types from Schemas
@@ -68,6 +79,7 @@ export type IUser = z.infer<typeof userSchema>;
 export type ITournament = z.infer<typeof tournamentSchema>;
 export type IEvent = z.infer<typeof eventSchema>;
 export type IRegistration = z.infer<typeof registrationSchema>;
+export type IGame = z.infer<typeof gameSchema>;
 
 // Create Table Helper
 export const createTable = pgTableCreator((name) => `bracquet_${name}`);
@@ -98,6 +110,9 @@ export const registrations = createTable(
   },
   (registration) => {
     return {
+      userEventUniqueIndex: uniqueIndex(
+        "registration_user_event_unique_idx",
+      ).on(registration.userId, registration.eventId),
       userIdIndex: index("registration_user_id_idx").on(registration.userId),
       eventIdIndex: index("registration_event_id_idx").on(registration.eventId),
     };
@@ -140,15 +155,15 @@ export const events = createTable(
     eventType: varchar("event_type", {
       length: 50,
       enum: eventTypeEnum.options,
-    }).notNull(), // Corrected usage
+    }).notNull(),
     division: varchar("division", {
       length: 50,
       enum: divisionTypeEnum.options,
-    }).notNull(), // Corrected usage
+    }).notNull(),
     bracketType: varchar("bracket_type", {
       length: 50,
       enum: bracketTypeEnum.options,
-    }).notNull(), // Corrected usage
+    }).notNull(),
   },
   (events) => {
     return {
@@ -158,7 +173,6 @@ export const events = createTable(
     };
   },
 );
-// wait tf where is null coming from then
 
 export const games = createTable(
   "games",
@@ -168,28 +182,16 @@ export const games = createTable(
     bracketPosition: integer("bracket_position"),
     startTime: timestamp("start_time", { withTimezone: true }),
     venue: varchar("venue", { length: 255 }),
-    status: varchar("status", { length: 50, enum: gameStatusEnum.options }), // Corrected usage
-    score: varchar("score", { length: 1024 }), // Using varchar to store JSON as text
+    status: varchar("status", {
+      length: 50,
+      enum: gameStatusEnum.options,
+    }).notNull(), // Corrected usage
+    data: varchar("data", { length: 1024 }), // Using JSON to score score data and players to work with multiple bracket types and player counts
   },
   (games) => {
     return {
       eventIdIndex: index("games_event_id_idx").on(games.eventId),
       startTimeIndex: index("games_start_time_idx").on(games.startTime),
-    };
-  },
-);
-
-export const participants = createTable(
-  "participants",
-  {
-    participantId: serial("participant_id").primaryKey(),
-    userId: varchar("user_id", { length: 255 }).references(() => users.userId),
-    gameId: integer("game_id").references(() => games.gameId),
-  },
-  (participants) => {
-    return {
-      userIdIndex: index("participants_user_id_idx").on(participants.userId),
-      gameIdIndex: index("participants_game_id_idx").on(participants.gameId),
     };
   },
 );
