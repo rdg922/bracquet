@@ -8,47 +8,8 @@ import {
   getRegistrations,
   addGame,
 } from "~/server/queries";
-import { Card, CardTitle, CardContent } from "~/components/ui/card";
 import { db } from "~/server/db";
-
-interface GameCardProps {
-  game: {
-    gameId: number;
-    bracketPosition: number;
-    status: string;
-    data: string;
-  };
-}
-
-interface GameData {
-  player1?: string;
-  player2?: string;
-  winnerOfMatch?: string;
-}
-
-const GameCard = async ({ game }: { game: IGame }) => {
-  const data = JSON.parse(game.data) as GameData;
-
-  const player1 = data.player1 ? data.player1 : "Bye";
-  const player2 =
-    data.player2 === null
-      ? "Winner of previous match"
-      : data.player2
-        ? data.player2
-        : "Bye";
-
-  return (
-    <Card>
-      <CardContent>
-        <CardTitle>Game ID: {game.gameId}</CardTitle>
-        <p>Bracket Position: {game.bracketPosition}</p>
-        <p>Status: {game.status}</p>
-        <p>Player 1: {player1}</p>
-        <p>Player 2: {player2}</p>
-      </CardContent>
-    </Card>
-  );
-};
+import GameCard from "~/components/GameCard"; // Adjust the import path as needed
 
 export default function TournamentPage({
   params,
@@ -61,14 +22,14 @@ export default function TournamentPage({
     );
 
     return (
-      <>
+      <div className="py-2">
         <h2>Registered</h2>
         {registrations.map((registration) => (
           <div key={registration.registrationId}>
             <p>{registration.userId}</p>
           </div>
         ))}
-      </>
+      </div>
     );
   }
 
@@ -78,38 +39,54 @@ export default function TournamentPage({
     const registrations = (await getRegistrations(eventId)) as IRegistration[];
     const matchIds: Record<number, number[]> = {}; // Track match IDs for each round
 
-    // Start a database transaction
     await db.transaction(async (trx) => {
-      // Generate the initial matches for single elimination bracket
       let bracketPosition = 1;
-      let round = registrations.map((reg) => reg.userId);
+      let round = registrations.map((reg) => ({
+        playerType: "user",
+        playerId: reg.userId,
+      }));
+      let byePosition = null;
 
       while (round.length > 1) {
-        const nextRound: string[] = [];
+        const nextRound: {
+          playerType: string;
+          playerId: string | null | undefined;
+        }[] = [];
         matchIds[bracketPosition] = [];
 
         for (let i = 0; i < round.length; i += 2) {
-          const match = round.slice(i, i + 2);
-          const game: IGame = {
-            eventId,
-            bracketPosition,
-            status: "not started",
-            data: JSON.stringify({
-              player1: match[0],
-              player2: match.length === 2 ? match[1] : null,
-              winnerOfMatch: null,
-            }),
-          };
-
-          const createdGame = (await addGame(game, trx))[0];
-          if (!createdGame) throw new Error("No game found");
-          matchIds[bracketPosition]?.push(createdGame.gameId);
+          const match: {
+            playerType: string;
+            playerId: string | null | undefined;
+          }[] = round.slice(i, i + 2);
+          let gameData: IGame;
 
           if (match.length === 2) {
-            nextRound.push(createdGame.gameId.toString());
+            gameData = {
+              eventId,
+              bracketPosition,
+              status: "not started",
+              data: JSON.stringify({
+                player1: match[0],
+                player2: match[1],
+                winnerOfMatch: null,
+              }),
+            };
+
+            const [createdGame]: IGame[] = await addGame(gameData, trx);
+            if (!createdGame?.gameId) throw new Error("Game creation failed");
+
+            matchIds[bracketPosition]?.push(createdGame.gameId);
+            nextRound.push({
+              playerType: "winner",
+              playerId: createdGame.gameId.toString(),
+            });
           } else {
-            if (!match[0]) throw new Error("No player found");
-            nextRound.push(match[0]); // If odd number of participants, the last one gets a bye
+            if (byePosition === null) {
+              byePosition = bracketPosition;
+            }
+            if (!match[0]) throw new Error("Match length is 0");
+            nextRound.push(match[0]);
           }
         }
 
@@ -118,14 +95,13 @@ export default function TournamentPage({
       }
 
       if (round.length === 1) {
-        // Handle the final game if there's only one participant left
         const finalGame: IGame = {
           eventId,
           bracketPosition,
           status: "not started",
           data: JSON.stringify({
             player1: round[0],
-            player2: null,
+            player2: { playerType: "bye", playerId: null },
             winnerOfMatch: null,
           }),
         };
@@ -134,7 +110,6 @@ export default function TournamentPage({
       }
     });
 
-    // Optionally, revalidate the path to refresh the data on the client side
     revalidatePath(`/tournament/${params.tournamentId}/event/${eventId}`);
   }
 
@@ -142,8 +117,6 @@ export default function TournamentPage({
     "use server";
     const eventId = params.eventId;
     await deleteBracket(eventId);
-
-    // Optionally, revalidate the path to refresh the data on the client side
     revalidatePath(`/tournament/${params.tournamentId}/event/${eventId}`);
   }
 
@@ -152,8 +125,8 @@ export default function TournamentPage({
 
     const gamesByPosition = games.reduce(
       (acc, game) => {
-        if (!game.bracketPosition) throw new Error("No bracket position");
-
+        if (game.bracketPosition == null || game.bracketPosition === undefined)
+          throw new Error("Bracket position is null");
         if (!acc[game.bracketPosition]) {
           acc[game.bracketPosition] = [];
         }
@@ -164,23 +137,22 @@ export default function TournamentPage({
     );
 
     return (
-      <>
-        {Object.keys(gamesByPosition).map((position: string) => (
+      <div className="py-2">
+        {Object.keys(gamesByPosition).map((position) => (
           <div key={position}>
-            <h3>Bracket Position {position}</h3>
             {gamesByPosition[parseInt(position)]?.map((game: IGame) => (
               <GameCard key={game.gameId} game={game} />
             ))}
           </div>
         ))}
-      </>
+      </div>
     );
   }
 
   return (
     <main>
       <Registrations />
-      <div className="flex space-x-2">
+      <div className="flex space-x-2 py-2">
         <form action={GenerateBracketsAction}>
           <Button>Generate Brackets</Button>
         </form>
