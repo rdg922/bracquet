@@ -6,7 +6,6 @@ import {
   type IUser,
   type IEvent,
   type ITournament,
-  type IRegistration,
   type IGame,
 } from "~/server/db/schema";
 
@@ -85,6 +84,10 @@ export async function isMeRegisteredForEvent(eventId: number) {
   return isRegisteredForEvent(userId, eventId);
 }
 
+export async function addGame(newGame: IGame, context = db) {
+  return await context.insert(games).values(newGame).returning();
+}
+
 export async function registerMeForEvent(eventId: number) {
   const user = auth();
   const userId = user.userId;
@@ -97,6 +100,12 @@ export async function registerMeForEvent(eventId: number) {
     .returning();
   console.log(newRegistration);
   return newRegistration;
+}
+
+export async function getUser(userId: string): Promise<IUser | undefined> {
+  return await db.query.users.findFirst({
+    where: eq(users.userId, userId),
+  });
 }
 
 export async function getMyTournaments() {

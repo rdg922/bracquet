@@ -35,10 +35,10 @@ export const gameStatusEnum = z.enum([
 // Define Schemas using Zod
 export const userSchema = z.object({
   userId: z.string().uuid(),
-  phoneNumber: z.string().optional(),
-  name: z.string().optional(),
-  email: z.string().optional(),
-  schoolId: z.number().optional(),
+  phoneNumber: z.string().nullish(),
+  name: z.string().nullish(),
+  email: z.string().nullish(),
+  schoolId: z.number().nullish(),
 });
 
 export const tournamentSchema = z.object({
@@ -71,7 +71,7 @@ export const gameSchema = z.object({
   startTime: z.date().nullish(),
   venue: z.string().nullish(),
   status: gameStatusEnum,
-  data: z.string().nullish(),
+  data: z.string(),
 });
 
 // Define Types from Schemas
@@ -186,7 +186,7 @@ export const games = createTable(
       length: 50,
       enum: gameStatusEnum.options,
     }).notNull(), // Corrected usage
-    data: varchar("data", { length: 1024 }), // Using JSON to score score data and players to work with multiple bracket types and player counts
+    data: varchar("data", { length: 1024 }).notNull(), // Using JSON to score score data and players to work with multiple bracket types and player counts
   },
   (games) => {
     return {
