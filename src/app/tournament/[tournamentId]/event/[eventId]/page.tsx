@@ -7,6 +7,7 @@ import {
   getRegistrations,
   addGame,
   getUser,
+  getEvents,
 } from "~/server/queries";
 import { db } from "~/server/db";
 import GameCard from "~/components/GameCard"; // Adjust the import path as needed
@@ -96,21 +97,6 @@ export default function TournamentPage({
 
         round = nextRound;
         bracketPosition++;
-      }
-
-      if (round.length === 1) {
-        const finalGame: IGame = {
-          eventId,
-          bracketPosition,
-          status: "not started",
-          data: JSON.stringify({
-            player1: round[0],
-            player2: { playerType: "bye", playerId: null },
-            winnerOfMatch: null,
-          }),
-        };
-
-        await addGame(finalGame, trx);
       }
     });
 

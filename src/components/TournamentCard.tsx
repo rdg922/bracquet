@@ -50,13 +50,17 @@ export default async function TournamentCard({
         <p>Start Time: {tournament.startTime?.toISOString()}</p>
         <p>Venue: {tournament.venue}</p>
       </CardContent>
-      {isOrganizer && (
-        <CardFooter>
+
+      <CardFooter className="space-x-2">
+        <a href={`/tournament/${tournament.tournamentId}`}>
+          <Button>View Tournament</Button>
+        </a>
+        {isOrganizer && (
           <form action={handleDelete}>
             <Button variant="destructive">Delete</Button>
           </form>
-        </CardFooter>
-      )}
+        )}
+      </CardFooter>
     </Card>
   );
 }
