@@ -1,5 +1,4 @@
 import { revalidatePath } from "next/cache";
-import { type NextRequest } from "next/server";
 import { Button } from "~/components/ui/button";
 import { type IGame, type IRegistration } from "~/server/db/schema";
 import {
@@ -141,7 +140,12 @@ export default function TournamentPage({
         {Object.keys(gamesByPosition).map((position) => (
           <div key={position}>
             {gamesByPosition[parseInt(position)]?.map((game: IGame) => (
-              <GameCard key={game.gameId} game={game} />
+              <a
+                key={game.gameId}
+                href={`/tournament/${params.tournamentId}/event/${params.eventId}/game/${game.gameId}`}
+              >
+                <GameCard game={game} />
+              </a>
             ))}
           </div>
         ))}

@@ -18,6 +18,12 @@ export async function addGames(newGames: IGame[]): Promise<IGame[]> {
   return await db.insert(games).values(newGames).returning();
 }
 
+export async function getGame(gameId: number) {
+  return await db.query.games.findFirst({
+    where: eq(games.gameId, gameId),
+  });
+}
+
 export async function getOthersTournaments() {
   const user = auth();
   const userId = user.userId ?? "";
