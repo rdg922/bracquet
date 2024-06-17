@@ -9,15 +9,17 @@ import {
   CardContent,
   CardDescription,
 } from "./ui/card";
-import { deleteTournament } from "~/server/queries";
+import { deleteTournament, getUser } from "~/server/queries";
 
-export default function TournamentCard({
+export default async function TournamentCard({
   tournament,
   isOrganizer,
 }: {
   tournament: ITournament;
   isOrganizer: boolean;
 }) {
+  const user = await getUser(tournament.organizerId!);
+
   const handleDelete = async () => {
     "use server";
 
@@ -44,7 +46,7 @@ export default function TournamentCard({
         </div>
       </CardHeader>
       <CardContent>
-        <p>Organizer: {tournament.organizerId}</p>
+        <p>Organizer: {user?.name ?? tournament.organizerId}</p>
         <p>Start Time: {tournament.startTime?.toISOString()}</p>
         <p>Venue: {tournament.venue}</p>
       </CardContent>

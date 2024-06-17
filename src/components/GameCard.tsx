@@ -38,7 +38,8 @@ export default async function GameCard({ game }: { game: IGame }) {
         <p>Status: {game.status}</p>
         <p>Player 1: {player1Name}</p>
         <p>Player 2: {player2Name}</p>
-        <p>{game.data}</p>
+        <p>{game.startTime ?? "No start time assigned yet"}</p>
+        <p>{data.winnerOfMatch ?? "No winner yet"}</p>
       </CardContent>
     </Card>
   );

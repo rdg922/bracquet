@@ -32,7 +32,7 @@ export default async function GamePage({
       </h2>
       <p>Status: {game?.status}</p>
       <p>
-        Start Time:
+        Start Time:{" "}
         {game?.startTime?.toString() ?? "No start time assigned yet"}
       </p>
     </main>
