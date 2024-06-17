@@ -6,6 +6,7 @@ import {
   getGames,
   getRegistrations,
   addGame,
+  getUser,
 } from "~/server/queries";
 import { db } from "~/server/db";
 import GameCard from "~/components/GameCard"; // Adjust the import path as needed
@@ -23,11 +24,15 @@ export default function TournamentPage({
     return (
       <div className="py-2">
         <h2>Registered</h2>
-        {registrations.map((registration) => (
-          <div key={registration.registrationId}>
-            <p>{registration.userId}</p>
-          </div>
-        ))}
+        {registrations.map(async (registration) => {
+          if (!registration.userId) return null;
+          const name = (await getUser(registration.userId))?.name;
+          return (
+            <div key={registration.registrationId}>
+              <p>{name}</p>
+            </div>
+          );
+        })}
       </div>
     );
   }
