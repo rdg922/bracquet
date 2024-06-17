@@ -73,6 +73,8 @@ const AddTournamentForm = () => {
       <h2 className="my-6">Add Tournament</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {" "}
+          {/* TODO: use actions */}
           <FormField
             control={form.control}
             name="name"

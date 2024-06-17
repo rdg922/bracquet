@@ -77,7 +77,7 @@ const AccountSetup: React.FC = () => {
   }
 
   return (
-    <div className="setup-container">
+    <main>
       <h1>Account Setup</h1>
       <form onSubmit={handleSubmit}>
         <div>
@@ -90,7 +90,7 @@ const AccountSetup: React.FC = () => {
         </div>
         <button type="submit">Submit</button>
       </form>
-    </div>
+    </main>
   );
 };
 
