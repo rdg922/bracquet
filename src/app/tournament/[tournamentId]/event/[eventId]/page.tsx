@@ -7,7 +7,6 @@ import {
   getRegistrations,
   addGame,
   getUser,
-  getEvents,
 } from "~/server/queries";
 import { db } from "~/server/db";
 import GameCard from "~/components/GameCard"; // Adjust the import path as needed
@@ -135,7 +134,10 @@ export default function TournamentPage({
                 key={game.gameId}
                 href={`/tournament/${params.tournamentId}/event/${params.eventId}/game/${game.gameId}`}
               >
-                <GameCard game={game} />
+                <GameCard
+                  game={game}
+                  link={`/tournament/${params.tournamentId}/event/${params.eventId}/game/${game.gameId}`}
+                />
               </a>
             ))}
           </div>

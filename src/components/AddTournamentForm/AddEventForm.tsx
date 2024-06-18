@@ -1,14 +1,14 @@
 "use client";
 
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
+} from "../ui/form";
 import { type z } from "zod";
 import {
   type Control,
@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { type tournamentFormSchema } from "./AddTournament";
+import { type tournamentFormSchema } from "./tournamentFormSchema";
 
 type TournamentFormValues = z.infer<typeof tournamentFormSchema>;
 

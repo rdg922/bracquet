@@ -1,6 +1,13 @@
 import { getUser } from "~/server/queries";
-import { Card, CardTitle, CardContent, CardHeader } from "./ui/card";
+import {
+  Card,
+  CardTitle,
+  CardContent,
+  CardHeader,
+  CardFooter,
+} from "./ui/card";
 import { type IGame } from "~/server/db/schema";
+import { Button } from "./ui/button";
 
 interface GameData {
   player1: { playerType: string; playerId: string | number };
@@ -8,7 +15,13 @@ interface GameData {
   winnerOfMatch: string | null;
 }
 
-export default async function GameCard({ game }: { game: IGame }) {
+export default async function GameCard({
+  game,
+  link,
+}: {
+  game: IGame;
+  link: string;
+}) {
   const data = JSON.parse(game.data) as GameData;
 
   async function getPlayerName(player: {
@@ -41,6 +54,11 @@ export default async function GameCard({ game }: { game: IGame }) {
         <p>{!!game.startTime ?? "No start time assigned yet"}</p>
         <p>{data.winnerOfMatch ?? "No winner yet"}</p>
       </CardContent>
+      <CardFooter>
+        <a href={link}>
+          <Button>View Game</Button>
+        </a>
+      </CardFooter>
     </Card>
   );
 }

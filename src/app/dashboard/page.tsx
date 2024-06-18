@@ -1,7 +1,7 @@
 import { getMyTournaments, getOthersTournaments } from "~/server/queries";
 import TournamentCard from "~/components/TournamentCard";
 import { type ITournament } from "~/server/db/schema";
-import AddTournamentForm from "~/components/AddTournament";
+import AddTournamentForm from "~/components/AddTournamentForm/AddTournamentForm";
 
 async function MyTournaments() {
   const tournaments = (await getMyTournaments()) as ITournament[];

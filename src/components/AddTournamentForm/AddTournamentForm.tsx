@@ -1,8 +1,9 @@
 "use client";
 
-import { z } from "zod";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import { X } from "lucide-react";
+import { type z } from "zod";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -13,51 +14,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
+} from "~/components/ui/form";
+import { useFormState } from "react-dom";
+import { useRef } from "react";
 import { DateTimePicker } from "~/components/ui/datetime-picker";
 import AddEventForm from "./AddEventForm"; // Import the AddEventForm component
-
-export const tournamentFormSchema = z.object({
-  name: z.string().min(2).max(255),
-  startTime: z.date(),
-  venue: z.string().optional(),
-  events: z.array(
-    z.object({
-      name: z.string().min(2).max(256),
-      eventType: z.enum([
-        "m_single",
-        "m_double",
-        "w_single",
-        "w_double",
-        "x_double",
-      ]),
-      division: z.enum(["novice", "intermediate", "open"]),
-      bracketType: z.enum([
-        "single_elim",
-        "double_elim",
-        "single_consol",
-        "round_robin",
-        "custom",
-      ]),
-    }),
-  ),
-});
+import { tournamentFormSchema } from "./tournamentFormSchema";
+import { onSubmitAction } from "./onSubmitAction";
 
 const AddTournamentForm = () => {
-  const onSubmit = async (values: z.infer<typeof tournamentFormSchema>) => {
-    const response = await fetch("/api/addTournament", {
-      method: "POST",
-      body: JSON.stringify({
-        ...values,
-      }),
-    });
-
-    if (response.ok) {
-      alert("Tournament added successfully");
-    } else {
-      alert("Failed to add tournament");
-    }
-  };
+  const [state, formAction] = useFormState(onSubmitAction, { message: "" });
 
   const form = useForm<z.infer<typeof tournamentFormSchema>>({
     resolver: zodResolver(tournamentFormSchema),
@@ -68,13 +34,49 @@ const AddTournamentForm = () => {
     },
   });
 
+  const formRef = useRef<HTMLFormElement>(null);
+
   return (
     <div className="pt-6">
       <h2 className="my-6">Add Tournament</h2>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          {" "}
-          {/* TODO: use actions */}
+        {state?.message !== "" && !state.issues && (
+          <div className="text-red-500">{state.message}</div>
+        )}
+        {state?.issues && (
+          <div className="text-red-500">
+            <ul>
+              {state.issues.map((issue) => (
+                <li key={issue} className="flex gap-1">
+                  <X fill="red" />
+                  {issue}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <form
+          ref={formRef}
+          action={formAction}
+          onSubmit={async (evt) => {
+            evt.preventDefault();
+            void form.handleSubmit((values) => {
+              const formData = new FormData();
+              for (const key in values) {
+                if (key === "events") {
+                  formData.append(key, JSON.stringify(values[key]));
+                } else {
+                  formData.append(
+                    key,
+                    values[key as keyof typeof values]!.toString(),
+                  );
+                }
+              }
+              formAction(formData);
+            })(evt);
+          }}
+          className="space-y-8"
+        >
           <FormField
             control={form.control}
             name="name"

@@ -56,9 +56,14 @@ export default async function TournamentCard({
           <Button>View Tournament</Button>
         </a>
         {isOrganizer && (
-          <form action={handleDelete}>
-            <Button variant="destructive">Delete</Button>
-          </form>
+          <>
+            <a href={`/dashboard/${tournament.tournamentId}`}>
+              <Button variant="secondary">Manage</Button>
+            </a>
+            <form action={handleDelete}>
+              <Button variant="destructive">Delete</Button>
+            </form>
+          </>
         )}
       </CardFooter>
     </Card>
