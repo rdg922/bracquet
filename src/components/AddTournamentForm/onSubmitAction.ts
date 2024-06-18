@@ -13,7 +13,7 @@ export type FormState = {
 };
 
 export async function onSubmitAction(
-  prevState: FormState,
+  _prevState: FormState,
   data: FormData,
 ): Promise<FormState> {
   try {
