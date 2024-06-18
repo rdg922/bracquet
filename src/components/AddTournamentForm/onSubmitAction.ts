@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { tournamentFormSchema } from "./tournamentFormSchema";
 import { addTournament, addEvent } from "~/server/queries";
 import { type ITournament, type IEvent } from "~/server/db/schema";
+import { revalidatePath } from "next/cache";
 
 export type FormState = {
   message: string;
@@ -72,6 +73,7 @@ export async function onSubmitAction(
     );
     await Promise.all(eventPromises);
 
+    revalidatePath("/dashboard");
     return { message: "Tournament added successfully" };
   } catch (error) {
     console.error("Failed to add tournament:", error);
