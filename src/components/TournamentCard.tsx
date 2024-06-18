@@ -10,6 +10,7 @@ import {
   CardDescription,
 } from "./ui/card";
 import { deleteTournament, getUser } from "~/server/queries";
+import { useToast } from "~/components/ui/use-toast";
 
 export default async function TournamentCard({
   tournament,
@@ -53,11 +54,11 @@ export default async function TournamentCard({
 
       <CardFooter className="space-x-2">
         <a href={`/tournament/${tournament.tournamentId}`}>
-          <Button>View Tournament</Button>
+          <Button variant="secondary">View Tournament</Button>
         </a>
         {isOrganizer && (
           <>
-            <a href={`/dashboard/${tournament.tournamentId}`}>
+            <a href={`/dashboard/tournament/${tournament.tournamentId}`}>
               <Button variant="secondary">Manage</Button>
             </a>
             <form action={handleDelete}>

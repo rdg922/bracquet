@@ -202,6 +202,15 @@ export async function isTournamentOrganizer({
   return false;
 }
 
+export async function isMeTournamentOrganizer(tournamentId: number) {
+  const user = auth();
+  const userId = user.userId;
+  if (!userId) {
+    throw new Error("not authorized");
+  }
+  return isTournamentOrganizer({ organizerId: userId, tournamentId });
+}
+
 export async function isUserSetup(userId: string) {
   const user = await db
     .select()
