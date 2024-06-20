@@ -1,13 +1,53 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "./db";
-import { tournaments, users, events, registrations, games } from "./db/schema";
-import { and, eq, not } from "drizzle-orm";
+import {
+  tournaments,
+  users,
+  events,
+  registrations,
+  games,
+  type IRegistrationWithUser,
+  type IRegistrationWithDetails,
+} from "./db/schema";
+import { and, eq, inArray, not } from "drizzle-orm";
 import {
   type IUser,
   type IEvent,
   type ITournament,
   type IGame,
 } from "~/server/db/schema";
+
+export async function getEventsForTournament(tournamentId: number) {
+  return await db.query.events.findMany({
+    where: eq(events.tournamentId, tournamentId),
+  });
+}
+export async function getRegistrationsForEvents(eventIds: number[]) {
+  return await db.query.registrations.findMany({
+    where: inArray(registrations.eventId, eventIds),
+  });
+}
+
+export async function getRegistrationsWithDetails(
+  eventIds: number[],
+): Promise<IRegistrationWithDetails[]> {
+  const registrationsWithDetails = await db
+    .select({
+      registrationId: registrations.registrationId,
+      userId: registrations.userId,
+      eventId: registrations.eventId,
+      userName: users.name,
+      eventName: events.name,
+      eventType: events.eventType,
+      bracketType: events.bracketType,
+    })
+    .from(registrations)
+    .innerJoin(users, eq(registrations.userId, users.userId))
+    .innerJoin(events, eq(registrations.eventId, events.eventId))
+    .where(inArray(registrations.eventId, eventIds));
+
+  return registrationsWithDetails;
+}
 
 export async function getTournaments() {
   const tournaments = await db.query.tournaments.findMany();

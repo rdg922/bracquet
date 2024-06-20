@@ -81,6 +81,13 @@ export type IEvent = z.infer<typeof eventSchema>;
 export type IRegistration = z.infer<typeof registrationSchema>;
 export type IGame = z.infer<typeof gameSchema>;
 
+export interface IRegistrationWithDetails extends IRegistration {
+  userName?: string | null;
+  eventName?: string | null;
+  eventType?: string | null;
+  bracketType?: string | null;
+}
+
 // Create Table Helper
 export const createTable = pgTableCreator((name) => `bracquet_${name}`);
 
