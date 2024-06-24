@@ -6,8 +6,9 @@ import {
   events,
   registrations,
   games,
-  type IRegistrationWithUser,
+  type IGameWithDetails,
   type IRegistrationWithDetails,
+  type IGameData,
 } from "./db/schema";
 import { and, eq, inArray, not } from "drizzle-orm";
 import {
@@ -47,6 +48,64 @@ export async function getRegistrationsWithDetails(
     .where(inArray(registrations.eventId, eventIds));
 
   return registrationsWithDetails;
+}
+
+export async function getGamesWithDetails(
+  eventIds: number[],
+): Promise<IGameWithDetails[]> {
+  const gamesWithDetails = await db
+    .select({
+      gameId: games.gameId,
+      eventId: games.eventId,
+      eventName: events.name,
+      tournamentId: events.tournamentId,
+      startTime: games.startTime,
+      venue: games.venue,
+      status: games.status,
+      data: games.data,
+    })
+    .from(games)
+    .innerJoin(events, eq(games.eventId, events.eventId))
+    .where(inArray(games.eventId, eventIds));
+
+  // Extract player IDs from the game data
+  const playerIds = gamesWithDetails.flatMap((game) => {
+    const data = JSON.parse(game.data) as IGameData;
+    return [data.player1.playerId, data.player2.playerId];
+  });
+
+  // Fetch player names for the extracted player IDs
+  const players = await db
+    .select({
+      userId: users.userId,
+      name: users.name,
+    })
+    .from(users)
+    .where(inArray(users.userId, playerIds));
+
+  const playerMap = new Map(
+    players.map((player) => [player.userId, player.name]),
+  );
+
+  // Map player names back to game details
+  return gamesWithDetails.map((game) => {
+    const data = JSON.parse(game.data) as IGameData;
+    return {
+      gameId: game.gameId,
+      eventId: game.eventId,
+      eventName: game.eventName,
+      tournamentId: game.tournamentId,
+      startTime: game.startTime,
+      venue: game.venue,
+      status: game.status,
+      data: game.data, // Include the data field
+      player1Name: playerMap.get(data.player1.playerId) ?? "Unknown",
+      player2Name: playerMap.get(data.player2.playerId) ?? "Unknown",
+      winnerOfMatch: data.winnerOfMatch
+        ? playerMap.get(data.winnerOfMatch) ?? "Unknown"
+        : "TBD",
+    };
+  });
 }
 
 export async function getTournaments() {

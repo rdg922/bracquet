@@ -81,11 +81,28 @@ export type IEvent = z.infer<typeof eventSchema>;
 export type IRegistration = z.infer<typeof registrationSchema>;
 export type IGame = z.infer<typeof gameSchema>;
 
+// TODO: make usage of these interfaces more consistent
+export interface IPlayer {
+  playerType: string;
+  playerId: string;
+}
+
+export interface IGameData {
+  player1: IPlayer;
+  player2: IPlayer;
+  winnerOfMatch: string | null;
+}
+
 export interface IRegistrationWithDetails extends IRegistration {
   userName?: string | null;
   eventName?: string | null;
   eventType?: string | null;
   bracketType?: string | null;
+}
+
+export interface IGameWithDetails extends IGame {
+  eventName?: string | null;
+  tournamentId?: number | null;
 }
 
 // Create Table Helper
